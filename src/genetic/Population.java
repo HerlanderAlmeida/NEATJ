@@ -2,6 +2,7 @@ package genetic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -10,7 +11,7 @@ import java.util.stream.IntStream;
  * It is possible, but not recommended, to use the types here to confuse people.
  * A population consists of a fixed size pool of Individuals.
  */
-public class Population<T extends Individual<? super T>> implements Supplier<List<Individual<?>>>
+public class Population<T extends Individual<? super T>> implements Supplier<List<Individual<?>>>, Iterable<Individual<?>>
 {
 	final List<Individual<?>> indivs;
 	
@@ -59,6 +60,11 @@ public class Population<T extends Individual<? super T>> implements Supplier<Lis
 	public List<Individual<?>> get()
 	{
 		return indivs;
+	}
+	
+	public Iterator<Individual<?>> iterator()
+	{
+		return indivs.iterator();
 	}
 	
 	public int size()
