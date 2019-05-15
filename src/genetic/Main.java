@@ -14,5 +14,15 @@ public class Main
 		for(int i = 0; i < 0; ++i)
 			p.indivs.remove(0);
 		System.out.println(p);
+		p.forEach(System.out::println);
+		//initialize population
+		//define evaluator
+		//do {
+		//evaluator.evaluate(population)
+		//selection process
+		//newpop = generation process
+		//population = newpop
+		//} while(!terminationCondition());
+		//end loop
 	}
 }

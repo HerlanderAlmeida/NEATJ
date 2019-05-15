@@ -10,11 +10,22 @@ public class Evaluator<T, R>
 	private Function<T, R> evaluator = null;
 	private Function<Iterable<T>, Iterable<R>> multiEvaluator = null;
 	
-	public Evaluator()
+	public static final <T, R> Evaluator<T, R> ofMulti(
+		Function<Iterable<T>, Iterable<R>> multipleEvaluator)
+	{
+		return new Evaluator<T, R>().withMulti(multipleEvaluator);
+	}
+	
+	public static final <T, R> Evaluator<T, R> of(Function<T, R> singleEvaluator)
+	{
+		return new Evaluator<T, R>().with(singleEvaluator);
+	}
+	
+	private Evaluator()
 	{
 	}
 	
-	public final Evaluator<T, R> asMulti(Function<Iterable<T>, Iterable<R>> multipleEvaluator)
+	public final Evaluator<T, R> withMulti(Function<Iterable<T>, Iterable<R>> multipleEvaluator)
 	{
 		if(this.multiEvaluator == null)
 			this.multiEvaluator = multipleEvaluator;
@@ -24,7 +35,7 @@ public class Evaluator<T, R>
 		return this;
 	}
 	
-	public final Evaluator<T, R> as(Function<T, R> singleEvaluator)
+	public final Evaluator<T, R> with(Function<T, R> singleEvaluator)
 	{
 		if(this.evaluator == null)
 			this.evaluator = singleEvaluator;
@@ -34,6 +45,10 @@ public class Evaluator<T, R>
 		return this;
 	}
 	
+	/**
+	 * Single evaluators should be able to apply to many Ts without order
+	 * dependencies
+	 */
 	public final R evaluate(T t)
 	{
 		if(evaluator != null)
@@ -41,6 +56,10 @@ public class Evaluator<T, R>
 		return evaluate(List.of(t)).iterator().next();
 	}
 	
+	/**
+	 * Multi-evaluators should implement sensible behavior for any 0+ Ts as
+	 * input
+	 */
 	public final Iterable<R> evaluate(Iterable<T> ts)
 	{
 		if(multiEvaluator != null)
@@ -49,6 +68,9 @@ public class Evaluator<T, R>
 			.collect(Collectors.toList());
 	}
 	
+	/**
+	 * See {@link Evaluator#evaluate(Iterable)}
+	 */
 	@SafeVarargs
 	public final Iterable<R> evaluate(T... ts)
 	{
