@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -23,12 +24,14 @@ public class Population<T extends Individual<? super T>> implements Supplier<Lis
 	public Population(int n, T instantiable)
 	{
 		this(n);
+		Objects.requireNonNull(instantiable);
 		IntStream.range(0, n).forEach(i -> indivs.add((Individual<?>)instantiable.getInstance()));
 	}
 	
 	public Population(int n, Supplier<T> supplier)
 	{
 		this(n);
+		Objects.requireNonNull(supplier);
 		IntStream.range(0, n).forEach(i -> indivs.add(supplier.get()));
 	}
 	
@@ -42,9 +45,19 @@ public class Population<T extends Individual<? super T>> implements Supplier<Lis
 		return indivs.removeAll(c);
 	}
 	
+	public void add(int idx, Individual<?> i)
+	{
+		indivs.add(idx, i);
+	}
+	
 	public boolean add(Individual<?> i)
 	{
 		return indivs.add(i);
+	}
+	
+	public Individual<?> remove(int idx)
+	{
+		return indivs.remove(idx);
 	}
 	
 	public boolean remove(Object o)

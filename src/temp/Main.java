@@ -1,6 +1,6 @@
-package genetic;
+package temp;
 
-import temp.IndividualChild;
+import genetic.Population;
 
 public class Main
 {
@@ -11,18 +11,18 @@ public class Main
 		System.out.println(b);
 		b = p.remove(p.get(0));
 		System.out.println(b);
-		for(int i = 0; i < 0; ++i)
-			p.indivs.remove(0);
+		for(int i = 0; i < 1; ++i)
+			p.remove(0);
 		System.out.println(p);
 		p.forEach(System.out::println);
-		//initialize population
-		//define evaluator
-		//do {
-		//evaluator.evaluate(population)
-		//selection process
-		//newpop = generation process
-		//population = newpop
-		//} while(!terminationCondition());
-		//end loop
+		// initialize population
+		// define evaluator
+		// do {
+		// evaluator.evaluate(population)
+		// selection process:
+		//     newpop = repopulator.apply(population)
+		// population = newpop
+		// } while(!terminationCondition());
+		// end loop
 	}
 }
