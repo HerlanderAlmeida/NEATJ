@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * 
  * @see {@link java.util.function.Supplier}
  */
-interface Instantiable
+public interface Instantiable
 {
 	/**
 	 * @return An instance of this Instantiable type
