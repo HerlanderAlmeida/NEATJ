@@ -12,20 +12,20 @@ import java.util.stream.IntStream;
  * It is possible, but not recommended, to use the types here to confuse people.
  * A population consists of a fixed size pool of Individuals.
  */
-public class Population<T extends Individual<? super T>> implements Supplier<List<Individual<?>>>, Iterable<Individual<?>>
+public class Population<T extends Individual> implements Supplier<List<Individual>>, Iterable<Individual>
 {
-	final List<Individual<?>> indivs;
+	final List<Individual> indivs;
 	
 	private Population(int size)
 	{
-		indivs = new ArrayList<Individual<?>>(size);
+		indivs = new ArrayList<Individual>(size);
 	}
 	
 	public Population(int n, T instantiable)
 	{
 		this(n);
 		Objects.requireNonNull(instantiable);
-		IntStream.range(0, n).forEach(i -> indivs.add((Individual<?>)instantiable.getInstance()));
+		IntStream.range(0, n).forEach(i -> indivs.add(instantiable.getInstance()));
 	}
 	
 	public Population(int n, Supplier<T> supplier)
@@ -35,7 +35,7 @@ public class Population<T extends Individual<? super T>> implements Supplier<Lis
 		IntStream.range(0, n).forEach(i -> indivs.add(supplier.get()));
 	}
 	
-	public void addAll(Collection<? extends Individual<?>> c)
+	public void addAll(Collection<? extends Individual> c)
 	{
 		indivs.addAll(c);
 	}
@@ -45,17 +45,17 @@ public class Population<T extends Individual<? super T>> implements Supplier<Lis
 		return indivs.removeAll(c);
 	}
 	
-	public void add(int idx, Individual<?> i)
+	public void add(int idx, Individual i)
 	{
 		indivs.add(idx, i);
 	}
 	
-	public boolean add(Individual<?> i)
+	public boolean add(Individual i)
 	{
 		return indivs.add(i);
 	}
 	
-	public Individual<?> remove(int idx)
+	public Individual remove(int idx)
 	{
 		return indivs.remove(idx);
 	}
@@ -65,17 +65,17 @@ public class Population<T extends Individual<? super T>> implements Supplier<Lis
 		return indivs.remove(o);
 	}
 	
-	public Individual<?> get(int i)
+	public Individual get(int i)
 	{
 		return indivs.get(i);
 	}
 	
-	public List<Individual<?>> get()
+	public List<Individual> get()
 	{
 		return indivs;
 	}
 	
-	public Iterator<Individual<?>> iterator()
+	public Iterator<Individual> iterator()
 	{
 		return indivs.iterator();
 	}

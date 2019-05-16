@@ -10,20 +10,17 @@ import java.util.function.Supplier;
  * from their provider.
  * @see {@link java.util.function.Supplier}
  */
-public interface Instantiable<T extends Individual<?>>
+public interface Instantiable
 {
 	/**
 	 * @return An instance of this Instantiable
 	 */
-	public default Object getInstance() 
-	{
-		return this.getProvider().get();
-	}
+	public abstract Individual getInstance();
 	
-	/**
-	 * @return A provider that gives instances of this Instantiable
-	 */
-	abstract Supplier<? super T> getProvider();
+	public default Supplier<Instantiable> getSupplier()
+	{
+		return this::getInstance;
+	}
 }
 /*
  * Another potential design of Instantiable. Eschewed in favor of the

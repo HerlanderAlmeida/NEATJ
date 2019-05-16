@@ -1,5 +1,8 @@
 package temp;
 
+import java.io.FileOutputStream;
+import java.util.Properties;
+
 import genetic.Population;
 
 public class Main
@@ -15,8 +18,21 @@ public class Main
 			p.remove(0);
 		System.out.println(p);
 		p.forEach(System.out::println);
+		try
+		{
+			var prop = new Properties();
+			prop.setProperty("random", "0.1");
+			var os = new FileOutputStream("properties.prop");
+			prop.store(os, "Stored properties");
+		}
+		catch(Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// initialize population
 		// define evaluator
+		// define repopulator
 		// do {
 		// evaluator.evaluate(population)
 		// selection process:

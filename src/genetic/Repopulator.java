@@ -10,7 +10,7 @@ import java.util.function.Function;
  *
  */
 @FunctionalInterface
-public interface Repopulator<T extends Individual<? super T>> 
+public interface Repopulator<T extends Individual> 
 	extends Function<Population<? extends T>, Population<T>>
 {
 }

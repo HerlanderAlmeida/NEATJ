@@ -1,10 +1,8 @@
 package temp;
 
-import java.util.function.Supplier;
-
 import genetic.Individual;
 
-public class IndividualChild extends Individual<IndividualChild>
+public class IndividualChild extends Individual
 {
 	static int name = 0;
 	int my_name = 0;
@@ -18,9 +16,9 @@ public class IndividualChild extends Individual<IndividualChild>
 	}
 	
 	@Override
-	public Supplier<? super Individual<?>> getProvider()
+	public IndividualChild getInstance()
 	{
-		return IndividualChild::new;
+		return new IndividualChild();
 	}
 	
 }
