@@ -2,7 +2,7 @@ package temp;
 
 import genetic.Individual;
 
-public class IndividualChild extends Individual
+public class IndividualChild implements Individual
 {
 	static int name = 0;
 	int my_name = 0;

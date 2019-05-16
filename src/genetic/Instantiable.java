@@ -3,19 +3,27 @@ package genetic;
 import java.util.function.Supplier;
 
 /**
- * Implementers will provide functionality for returning an object 
- * of type {@code T}, freshly generated from a {@code Supplier<? super T>}. The nature
- * of this {@code Supplier} is free to be defined by implementing classes.
- * Instantiables must provide some sort of {@link genetic.Individual Individual} 
- * from their provider.
+ * Implementers will provide functionality for returning an object of type
+ * {@code Instantiable}, freshly generated from a
+ * {@code Supplier<Instantiable>}. The nature of this {@code Supplier} is free
+ * to be defined by implementing classes. By default,
+ * {@link Instantiable#getSupplier() getSupplier} simply returns
+ * {@link Instantiable#getInstance() getInstance}, which is also free to be
+ * defined by implementing classes. It is generally not recommended to override
+ * both {@link Instantiable#getSupplier() getSupplier} and
+ * {@link Instantiable#getInstance() getInstance}, however.
+ * 
  * @see {@link java.util.function.Supplier}
  */
 public interface Instantiable
 {
 	/**
-	 * @return An instance of this Instantiable
+	 * @return An instance of this Instantiable type
 	 */
-	public abstract Individual getInstance();
+	public default Instantiable getInstance()
+	{
+		return getSupplier().get();
+	}
 	
 	public default Supplier<Instantiable> getSupplier()
 	{
@@ -23,42 +31,27 @@ public interface Instantiable
 	}
 }
 /*
- * Another potential design of Instantiable. Eschewed in favor of the
- * less type-intensive approach, because it generated less compiler warnings,
- * allowed for clearer code, and allowed equally strong type bounds.
+ * Another potential design of Instantiable. Eschewed in favor of the less
+ * type-intensive approach, because it generated less compiler warnings, allowed
+ * for clearer code, and allowed equally strong type bounds.
  */
 /*
-public interface Instantiable<T>
-{
-	public default <S extends Instantiable<T>> T getInstance()
-	{
-		return this.<T, S>getProvider().get();
-	}
-	
-	abstract <S, U extends Instantiable<T>> Supplier<S> getProvider();
-}
-*/
-/*
- * One potential design of Instantiable. Eschewed in favor of the 
- * interface approach, which allows for much greater flexibility
- * for users to extend their own classes. 
+ * public interface Instantiable<T> { public default <S extends Instantiable<T>>
+ * T getInstance() { return this.<T, S>getProvider().get(); }
+ * 
+ * abstract <S, U extends Instantiable<T>> Supplier<S> getProvider(); }
  */
 /*
-public class Instantiable<T>
-{
-	private Instantiable()
-	{
-		//only subclasses are truly instantiable
-	}
-	
-	public <S extends Instantiable<T>> T getInstance()
-	{
-		return this.getProvider().get();
-	}
-	
-	protected Supplier<T> getProvider()
-	{
-		return () -> null;
-	}
-}
-*/
+ * One potential design of Instantiable. Eschewed in favor of the interface
+ * approach, which allows for much greater flexibility for users to extend their
+ * own classes.
+ */
+/*
+ * public class Instantiable<T> { private Instantiable() { //only subclasses are
+ * truly instantiable }
+ * 
+ * public <S extends Instantiable<T>> T getInstance() { return
+ * this.getProvider().get(); }
+ * 
+ * protected Supplier<T> getProvider() { return () -> null; } }
+ */
