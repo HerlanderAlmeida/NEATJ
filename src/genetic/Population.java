@@ -85,9 +85,9 @@ public class Population<T extends Individual> implements Supplier<List<Individua
 		return indivs.size();
 	}
 	
-	public Population<?> join(Population<?> other)
+	public Population<T> join(Population<? extends T> other)
 	{
-		Population<?> joined = new Population<>(this.size() + other.size());
+		Population<T> joined = new Population<>(this.size() + other.size());
 		joined.indivs.addAll(this.indivs);
 		joined.indivs.addAll(other.indivs);
 		return joined;

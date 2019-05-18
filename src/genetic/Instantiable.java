@@ -20,12 +20,12 @@ public interface Instantiable
 	/**
 	 * @return An instance of this Instantiable type
 	 */
-	public default Instantiable getInstance()
+	default Instantiable getInstance()
 	{
 		return getSupplier().get();
 	}
 	
-	public default Supplier<Instantiable> getSupplier()
+	default Supplier<Instantiable> getSupplier()
 	{
 		return this::getInstance;
 	}
