@@ -9,6 +9,8 @@ public interface Individual extends Instantiable
 	@Override
 	Individual getInstance();
 	
+	abstract Individual copy();
+	
 	default <T extends Individual> T as(Class<T> cls)
 	{
 		if(cls.isInstance(this))

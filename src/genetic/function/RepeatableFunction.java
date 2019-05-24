@@ -20,6 +20,6 @@ public interface RepeatableFunction<T, R>
 	 */
 	default Stream<R> asStream(T t)
 	{
-		return Stream.generate(() -> apply(t)).parallel().unordered();
+		return Stream.generate(() -> apply(t)).sequential().unordered();
 	}
 }

@@ -1,15 +1,14 @@
 package temp;
 
-import java.io.FileOutputStream;
-import java.util.Properties;
-
 import genetic.Population;
+import genetic.repopulate.Repopulator;
+import genetic.repopulate.RepopulatorImpl;
 
 public class Main
 {
-	public static void main(String[] args)
+	public static void main(String[] args) throws Exception
 	{
-		Population<IndividualChild> p = new Population<IndividualChild>(10, IndividualChild::new);
+		Population<IndividualChild> p = new Population<IndividualChild>(10, false, IndividualChild.class, "bleh", 7);
 		boolean b = p.remove("blah");
 		System.out.println(b);
 		b = p.remove(p.get(0));
@@ -18,18 +17,26 @@ public class Main
 			p.remove(0);
 		System.out.println(p);
 		p.forEach(System.out::println);
-		try
-		{
-			var prop = new Properties();
-			prop.setProperty("random", "0.1");
-			var os = new FileOutputStream("properties.prop");
-			prop.store(os, "Stored properties");
-		}
-		catch(Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Repopulator<IndividualChild> repop = new RepopulatorImpl<>(IndividualChild::copy){};
+		System.out.println("*********");
+		long l = System.currentTimeMillis();
+		p = repop.repopulate(p);
+		System.out.println(p);
+		p.forEach(System.out::println);
+		System.out.println(p.size());
+		System.out.println((System.currentTimeMillis() - l)/1000.0 + " seconds elapsed!");
+//		try
+//		{
+//			var prop = new Properties();
+//			prop.setProperty("random", "0.1");
+//			var os = new FileOutputStream("properties.prop");
+////			prop.store(os, "Stored properties");
+//		}
+//		catch(Exception e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		// initialize population
 		// define evaluator
 		// define repopulator
