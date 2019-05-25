@@ -1,5 +1,8 @@
 package temp;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import genetic.Population;
 import genetic.repopulate.Repopulator;
 import genetic.repopulate.RepopulatorImpl;
@@ -8,7 +11,8 @@ public class Main
 {
 	public static void main(String[] args) throws Exception
 	{
-		Population<IndividualChild> p = new Population<IndividualChild>(10, false, IndividualChild.class, "bleh", 7);
+		Population<IndividualChild> p = new Population<IndividualChild>(10, false,
+			IndividualChild.class, "bleh", 7);
 		boolean b = p.remove("blah");
 		System.out.println(b);
 		b = p.remove(p.get(0));
@@ -24,7 +28,7 @@ public class Main
 		System.out.println(p);
 		p.forEach(System.out::println);
 		System.out.println(p.size());
-		System.out.println((System.currentTimeMillis() - l)/1000.0 + " seconds elapsed!");
+		System.out.println((System.currentTimeMillis() - l) / 1000.0 + " seconds elapsed!");
 //		try
 //		{
 //			var prop = new Properties();

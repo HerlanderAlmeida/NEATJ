@@ -13,8 +13,7 @@ import java.util.stream.IntStream;
  * It is possible, but not recommended, to use the types here to confuse people.
  * A population consists of a fixed size pool of Individuals.
  */
-public class Population<T>
-	implements Supplier<List<T>>, Iterable<T>
+public class Population<T> implements Supplier<List<T>>, Iterable<T>
 {
 	final List<T> indivs;
 	
@@ -59,7 +58,8 @@ public class Population<T>
 		try
 		{
 			Constructor<T> c = cls.getConstructor(classes.toArray(new Class<?>[classes.size()]));
-			IntStream.range(0, n).forEach(i -> {
+			IntStream.range(0, n).forEach(i ->
+			{
 				try
 				{
 					indivs.add(cls.cast(c.newInstance(params)));
@@ -76,6 +76,11 @@ public class Population<T>
 			e.printStackTrace();
 			indivs.clear();
 		}
+	}
+	
+	public Population(Collection<T> c)
+	{
+		this(c.size(), c.iterator()::next);
 	}
 	
 	public Population(int n, Supplier<T> supplier)

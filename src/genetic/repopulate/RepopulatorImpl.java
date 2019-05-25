@@ -1,5 +1,6 @@
 package genetic.repopulate;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -33,9 +34,15 @@ public abstract class RepopulatorImpl<T extends Individual> implements Repopulat
 	@Override
 	public Collector<? super T, ?, Population<T>> collector()
 	{
-		return Collector.of(() -> new Population<T>(0, () -> null),
-			(p, i) -> p.add(i),
-			(a, b) -> a.join(b),
+		return Collector.of(
+			ArrayList::new, 
+			ArrayList::add,
+			(a, b) ->
+				{
+					a.addAll(b);
+					return a;
+				}, 
+			(ArrayList<T> c) -> new Population<T>(c), 
 			new Collector.Characteristics[0]);
 	}
 }
