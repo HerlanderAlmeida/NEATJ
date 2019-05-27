@@ -10,8 +10,8 @@ import genetic.Population;
 
 public abstract class RepopulatorImpl<T extends Individual> implements Repopulator<T>
 {
-	private Random random;
-	private Function<T, T> copier;
+	protected Random random;
+	protected Function<T, T> copier;
 	
 	public RepopulatorImpl(Function<T, T> copyFunc)
 	{

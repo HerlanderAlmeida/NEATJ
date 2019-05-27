@@ -31,11 +31,7 @@ public interface Repopulator<T extends Individual>
 	 *            The previous population
 	 * @return The next population
 	 */
-	default Population<T> repopulate(Population<T> pop)
-	{
-		throw new UnsupportedOperationException(
-			"Repopulator::repopulate(Population<T>) was invoked without being implemented!");
-	}
+	Population<T> repopulate(Population<T> pop);
 	
 	/**
 	 * Some sort of generation function that produces instances of {@code T}
