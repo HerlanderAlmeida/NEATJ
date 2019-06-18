@@ -1,20 +1,16 @@
 package genetic;
 
+import genetic.generics.Castable;
+import genetic.genome.Genomic;
+
 /**
  * It is possible, but not recommended, to use the types here to confuse people.
  * Individuals are members of a population.
  */
-public interface Individual extends Instantiable
+public interface Individual extends Instantiable, Castable<Individual>, Genomic
 {
 	@Override
 	Individual getInstance();
 	
-	abstract Individual copy();
-	
-	default <T extends Individual> T as(Class<T> cls)
-	{
-		if(cls.isInstance(this))
-			return cls.cast(this);
-		throw new IllegalArgumentException("Params must be of actual given type!");
-	}
+	Individual copy();
 }

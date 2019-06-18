@@ -41,7 +41,7 @@ public abstract class RepopulatorImpl<T extends Individual> implements Repopulat
 				{
 					a.addAll(b);
 					return a;
-				}, 
+				},
 			(ArrayList<T> c) -> new Population<T>(c), 
 			new Collector.Characteristics[0]);
 	}

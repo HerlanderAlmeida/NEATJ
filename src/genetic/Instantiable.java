@@ -1,17 +1,9 @@
 package genetic;
 
-import java.util.function.Supplier;
-
 /**
  * Implementers will provide functionality for returning an object of type
- * {@code Instantiable}, freshly generated from a
- * {@code Supplier<Instantiable>}. The nature of this {@code Supplier} is free
- * to be defined by implementing classes. By default,
- * {@link Instantiable#getSupplier() getSupplier} simply returns
- * {@link Instantiable#getInstance() getInstance}, which is also free to be
- * defined by implementing classes. It is generally not recommended to override
- * both {@link Instantiable#getSupplier() getSupplier} and
- * {@link Instantiable#getInstance() getInstance}, however.
+ * {@code Instantiable}. The nature of this functionality is free
+ * to be defined by implementing classes.
  * 
  * @see {@link java.util.function.Supplier}
  */
@@ -20,15 +12,7 @@ public interface Instantiable
 	/**
 	 * @return An instance of this Instantiable type
 	 */
-	default Instantiable getInstance()
-	{
-		return getSupplier().get();
-	}
-	
-	default Supplier<Instantiable> getSupplier()
-	{
-		return this::getInstance;
-	}
+	Instantiable getInstance();
 }
 /*
  * Another potential design of Instantiable. Eschewed in favor of the less

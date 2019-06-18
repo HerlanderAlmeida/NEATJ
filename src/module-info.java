@@ -1,5 +1,5 @@
 module avi.genetic
 {
 	exports genetic;
-	exports genetic.function;
+	requires java.sql;
 }

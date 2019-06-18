@@ -1,34 +1,13 @@
 package temp;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import genetic.Population;
-import genetic.repopulate.Repopulator;
+import genetic.evaluate.Evaluator;
 import genetic.repopulate.RepopulatorImpl;
 
 public class Main
 {
 	public static void main(String[] args) throws Exception
 	{
-		Population<IndividualChild> p = new Population<IndividualChild>(10, false,
-			IndividualChild.class, "bleh", 7);
-		boolean b = p.remove("blah");
-		System.out.println(b);
-		b = p.remove(p.get(0));
-		System.out.println(b);
-		for(int i = 0; i < 1; ++i)
-			p.remove(0);
-		System.out.println(p);
-		p.forEach(System.out::println);
-		Repopulator<IndividualChild> repop = new RepopulatorImpl<>(IndividualChild::copy){};
-		System.out.println("*********");
-		long l = System.currentTimeMillis();
-		p = repop.repopulate(p);
-		System.out.println(p);
-		p.forEach(System.out::println);
-		System.out.println(p.size());
-		System.out.println((System.currentTimeMillis() - l) / 1000.0 + " seconds elapsed!");
 //		try
 //		{
 //			var prop = new Properties();
@@ -42,7 +21,20 @@ public class Main
 //			e.printStackTrace();
 //		}
 		// initialize population
+		var pop = new Population<>(20, BinaryIndividual::new);
+		System.out.println(pop);
 		// define evaluator
+		var eval = Evaluator.<BinaryIndividual, Integer>of(b ->
+		{
+			return b.getGenome().getInt();
+		});
+		var evals = eval.evaluate(pop);
+		//pop.forEach(bi -> bi.);
+//		evals.forEach(System.out::println);
+		var repopulator = new RepopulatorImpl<BinaryIndividual>(b -> new BinaryIndividual(b.getGenome().getInt()))
+		{
+			
+		};
 		// define repopulator
 		// do {
 		// evaluator.evaluate(population)

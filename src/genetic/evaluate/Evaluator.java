@@ -1,4 +1,4 @@
-package genetic;
+package genetic.evaluate;
 
 import java.util.List;
 import java.util.function.Function;
