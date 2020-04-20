@@ -1,5 +1,6 @@
-module avi.genetic
+module avi
 {
+	exports temp;
 	exports genetic;
-	requires java.sql;
+	requires org.junit.jupiter.api;
 }

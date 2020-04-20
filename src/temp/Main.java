@@ -1,5 +1,7 @@
 package temp;
 
+import java.util.BitSet;
+
 import genetic.Population;
 import genetic.evaluate.Evaluator;
 import genetic.repopulate.RepopulatorImpl;
@@ -21,19 +23,25 @@ public class Main
 //			e.printStackTrace();
 //		}
 		// initialize population
-		var pop = new Population<>(20, BinaryIndividual::new);
+//		var pop = new Population<>(20, BinaryIndividual::new);
+		var pop = new Population<>(20,BinaryIndividual::new);
 		System.out.println(pop);
 		// define evaluator
 		var eval = Evaluator.<BinaryIndividual, Integer>of(b ->
 		{
-			return b.getGenome().getInt();
+			return Integer.bitCount(b.getGenome().getInt());
 		});
-		var evals = eval.evaluate(pop);
+		var evals = eval.evaluate(pop.stream());
 		//pop.forEach(bi -> bi.);
-//		evals.forEach(System.out::println);
+		evals.forEach((x) -> System.out.println(x));
 		var repopulator = new RepopulatorImpl<BinaryIndividual>(b -> new BinaryIndividual(b.getGenome().getInt()))
 		{
-			
+			@Override
+			public BinaryIndividual apply(Population<BinaryIndividual> t)
+			{
+				// TODO Auto-generated method stub
+				return super.apply(t);
+			}
 		};
 		// define repopulator
 		// do {

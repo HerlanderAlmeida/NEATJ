@@ -7,8 +7,14 @@ import genetic.genome.Genome;
 
 public class BinaryIndividual implements Individual
 {
-	private static final int BITS = 10;
+	private static final int BITS = 30;
+	private static final Random RNG = new Random();
 	private Genome genome;
+	
+	public BinaryIndividual(Object[] o)
+	{
+		this();
+	}
 	
 	public BinaryIndividual(int integer)
 	{
@@ -17,8 +23,7 @@ public class BinaryIndividual implements Individual
 	
 	public BinaryIndividual()
 	{
-		int randInt = new Random().nextInt((int) Math.pow(2, getBits()));
-		genome = new BinaryGenome(randInt);
+		this(RNG.nextInt((int) Math.pow(2, getBits())));
 	}
 	
 	public String toString()

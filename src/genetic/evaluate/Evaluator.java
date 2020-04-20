@@ -1,17 +1,16 @@
 package genetic.evaluate;
 
-import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 public class Evaluator<T, R>
 {
 	private Function<T, R> evaluator = null;
-	private Function<Iterable<T>, Iterable<R>> multiEvaluator = null;
+	private Function<Stream<T>, Stream<R>> multiEvaluator = null;
 	
 	public static final <T, R> Evaluator<T, R> ofMulti(
-		Function<Iterable<T>, Iterable<R>> multipleEvaluator)
+		Function<Stream<T>, Stream<R>> multipleEvaluator)
 	{
 		return new Evaluator<T, R>().withMulti(multipleEvaluator);
 	}
@@ -25,7 +24,7 @@ public class Evaluator<T, R>
 	{
 	}
 	
-	public final Evaluator<T, R> withMulti(Function<Iterable<T>, Iterable<R>> multipleEvaluator)
+	public final Evaluator<T, R> withMulti(Function<Stream<T>, Stream<R>> multipleEvaluator)
 	{
 		if(this.multiEvaluator == null)
 			this.multiEvaluator = multipleEvaluator;
@@ -53,27 +52,26 @@ public class Evaluator<T, R>
 	{
 		if(evaluator != null)
 			return evaluator.apply(t);
-		return evaluate(List.of(t)).iterator().next();
+		return evaluate(Stream.of(t)).findFirst().orElseThrow(() -> new NoSuchElementException("No result of Evaluator::evaluate!"));
 	}
 	
 	/**
 	 * Multi-evaluators should implement sensible behavior for any 0+ Ts as
 	 * input
 	 */
-	public final Iterable<R> evaluate(Iterable<T> ts)
+	public final Stream<R> evaluate(Stream<T> ts)
 	{
 		if(multiEvaluator != null)
 			return multiEvaluator.apply(ts);
-		return StreamSupport.stream(ts.spliterator(), true).map(this::evaluate)
-			.collect(Collectors.toList());
+		return ts.map(this::evaluate);
 	}
 	
 	/**
-	 * See {@link Evaluator#evaluate(Iterable)}
+	 * See {@link Evaluator#evaluate(Stream)}
 	 */
 	@SafeVarargs
-	public final Iterable<R> evaluate(T... ts)
+	public final Stream<R> evaluate(T... ts)
 	{
-		return evaluate(List.of(ts));
+		return evaluate(ts);
 	}
 }
