@@ -43,7 +43,7 @@ public class Neuron
 		{
 			value += c.getValue();
 		}
-		//apply sigmoid function or other things
+		// apply sigmoid function or other things
 	}
 	
 }
