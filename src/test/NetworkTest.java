@@ -1,10 +1,17 @@
 package test;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.List;
+import java.util.Scanner;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+
+import net.Network;
 import net.connection.MultiplierConnection;
 import net.neuron.Neuron;
 
@@ -53,5 +60,23 @@ public class NetworkTest
 		Assertions.assertEquals(8, neurons[5].getValue(), 1e-10);
 		Assertions.assertEquals(6.4, neurons[6].getValue(), 1e-10);
 		Assertions.assertEquals(3.88, neurons[7].getValue(), 1e-10);
+	}
+	
+	@Test
+	public void testNetworkFromFile()
+	{
+		Network net = new Network("resources/net/test_network.json");
+		try (var reader = new JsonReader(new FileReader("resources/net/test_network.json"));
+			var scanner = new Scanner(new File("resources/net/test_network.json")))
+		{
+			String content = scanner.useDelimiter("\\Z").next();
+			var elem1 = JsonParser.parseString(content);
+			var elem2 = JsonParser.parseString(net.toJson());
+			Assertions.assertEquals(elem1, elem2);
+		}
+		catch(Exception e)
+		{
+			Assertions.assertEquals(true, false);
+		}
 	}
 }

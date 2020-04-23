@@ -1,0 +1,17 @@
+{
+	"inputUnits": 4,
+	"outputUnits": 2,
+	"biasUnits": 1,
+	"connections": [
+		{
+			"from": 0,
+			"to": 5,
+			"weight": 1.5
+		},
+		{
+			"from": 3,
+			"to": 5,
+			"weight": 0.2
+		}
+	]
+}
