@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
  * It is possible, but not recommended, to use the types here to confuse people.
  * A population consists of a fixed size pool of Individuals.
  */
-public class Population<T> extends ArrayList<T>
+public class Population<T extends Individual> extends ArrayList<T>
 {
 	/** Version 0.0.1 */
 	private static final long serialVersionUID = -3987426094906704015L;

@@ -4,18 +4,36 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class Evaluator<T, R>
+import genetic.Individual;
+
+/**
+ * Evaluator for Individuals
+ * 
+ * @author ratha
+ *
+ * @param <T>
+ *            The type of individual
+ * @param <R>
+ *            The result of an evaluation
+ */
+public class Evaluator<T extends Individual, R>
 {
+	/**
+	 * Evaluator for one Individual at a time
+	 */
 	private Function<T, R> evaluator = null;
-	private Function<Stream<T>, Stream<R>> multiEvaluator = null;
+	/**
+	 * Evaluator for multiple Individuals at a time
+	 */
+	private Function<Stream<T>, Stream<Evaluation<T, R>>> multiEvaluator = null;
 	
-	public static final <T, R> Evaluator<T, R> ofMulti(
-		Function<Stream<T>, Stream<R>> multipleEvaluator)
+	public static final <T extends Individual, R> Evaluator<T, R> ofMulti(
+		Function<Stream<T>, Stream<Evaluation<T, R>>> multipleEvaluator)
 	{
 		return new Evaluator<T, R>().withMulti(multipleEvaluator);
 	}
 	
-	public static final <T, R> Evaluator<T, R> of(Function<T, R> singleEvaluator)
+	public static final <T extends Individual, R> Evaluator<T, R> of(Function<T, R> singleEvaluator)
 	{
 		return new Evaluator<T, R>().with(singleEvaluator);
 	}
@@ -24,7 +42,8 @@ public class Evaluator<T, R>
 	{
 	}
 	
-	public final Evaluator<T, R> withMulti(Function<Stream<T>, Stream<R>> multipleEvaluator)
+	public final Evaluator<T, R> withMulti(
+		Function<Stream<T>, Stream<Evaluation<T, R>>> multipleEvaluator)
 	{
 		if(this.multiEvaluator == null)
 			this.multiEvaluator = multipleEvaluator;
@@ -40,26 +59,27 @@ public class Evaluator<T, R>
 			this.evaluator = singleEvaluator;
 		else
 			throw new IllegalStateException(
-				"An evaluator may only set its evaluation method once!");
+				"An evaluator may only set its single evaluation method once!");
 		return this;
 	}
 	
 	/**
-	 * Single evaluators should be able to apply to many Ts without order
-	 * dependencies
+	 * {@link Evaluator#evaluator Single evaluators} should be able to apply to
+	 * many {@link Evaluator#T Ts} without order dependencies
 	 */
-	public final R evaluate(T t)
+	public final Evaluation<T, R> evaluate(T t)
 	{
 		if(evaluator != null)
-			return evaluator.apply(t);
-		return evaluate(Stream.of(t)).findFirst().orElseThrow(() -> new NoSuchElementException("No result of Evaluator::evaluate!"));
+			return new Evaluation<>(t, evaluator.apply(t));
+		return evaluate(Stream.of(t)).findFirst()
+			.orElseThrow(() -> new NoSuchElementException("No result of Evaluator::evaluate!"));
 	}
 	
 	/**
-	 * Multi-evaluators should implement sensible behavior for any 0+ Ts as
-	 * input
+	 * {@link Evaluator#multiEvaluator Multi-evaluators} should implement
+	 * sensible behavior for any 0+ {@link Evaluator#T Ts} as input
 	 */
-	public final Stream<R> evaluate(Stream<T> ts)
+	public final Stream<Evaluation<T, R>> evaluate(Stream<T> ts)
 	{
 		if(multiEvaluator != null)
 			return multiEvaluator.apply(ts);
@@ -67,11 +87,12 @@ public class Evaluator<T, R>
 	}
 	
 	/**
-	 * See {@link Evaluator#evaluate(Stream)}
+	 * Multi-evaluation on 0+ {@link Evaluator#T Ts} as an array. See
+	 * {@link Evaluator#evaluate(Stream)}
 	 */
 	@SafeVarargs
-	public final Stream<R> evaluate(T... ts)
+	public final Stream<Evaluation<T, R>> evaluate(T... ts)
 	{
-		return evaluate(ts);
+		return evaluate(Stream.of(ts));
 	}
 }

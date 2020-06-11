@@ -1,10 +1,12 @@
 package temp;
 
-import java.util.BitSet;
+import java.util.Comparator;
 
 import genetic.Population;
+import genetic.evaluate.Evaluation;
 import genetic.evaluate.Evaluator;
 import genetic.repopulate.RepopulatorImpl;
+import genetic.selection.Ranker;
 
 public class Main
 {
@@ -31,9 +33,12 @@ public class Main
 		{
 			return Integer.bitCount(b.getGenome().getInt());
 		});
+		var ranker = Ranker.rankingBy(Comparator.comparing(Evaluation<BinaryIndividual, Integer>::result).reversed());
 		var evals = eval.evaluate(pop.stream());
+		var ranked = ranker.rank(evals);
+
 		//pop.forEach(bi -> bi.);
-		evals.forEach((x) -> System.out.println(x));
+		ranked.forEach((x) -> System.out.println(x));
 		var repopulator = new RepopulatorImpl<BinaryIndividual>(b -> new BinaryIndividual(b.getGenome().getInt()))
 		{
 			@Override
