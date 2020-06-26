@@ -1,6 +1,7 @@
 package temp;
 
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import genetic.Population;
 import genetic.evaluate.Evaluation;
@@ -35,7 +36,7 @@ public class Main
 		});
 		var ranker = Ranker.rankingBy(Comparator.comparing(Evaluation<BinaryIndividual, Integer>::result).reversed());
 		var evals = eval.evaluate(pop.stream());
-		var ranked = ranker.rank(evals);
+		var ranked = ranker.rank(evals).collect(Collectors.toList());
 
 		//pop.forEach(bi -> bi.);
 		ranked.forEach((x) -> System.out.println(x));
