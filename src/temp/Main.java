@@ -8,6 +8,10 @@ import genetic.evaluate.Evaluation;
 import genetic.evaluate.Evaluator;
 import genetic.repopulate.RepopulatorImpl;
 import genetic.selection.Ranker;
+import genetic.selection.Selector;
+import genetic.selection.method.ElitistSelection;
+import genetic.selection.method.RankSelection;
+import genetic.selection.method.RouletteSelection;
 
 public class Main
 {
@@ -26,8 +30,7 @@ public class Main
 //			e.printStackTrace();
 //		}
 		// initialize population
-//		var pop = new Population<>(20, BinaryIndividual::new);
-		var pop = new Population<>(20,BinaryIndividual::new);
+		var pop = new Population<>(20, BinaryIndividual::new);
 		System.out.println(pop);
 		// define evaluator
 		var eval = Evaluator.<BinaryIndividual, Integer>of(b ->
@@ -37,7 +40,7 @@ public class Main
 		var ranker = Ranker.rankingBy(Comparator.comparing(Evaluation<BinaryIndividual, Integer>::result).reversed());
 		var evals = eval.evaluate(pop.stream());
 		var ranked = ranker.rank(evals).collect(Collectors.toList());
-
+		var selector = Selector.<BinaryIndividual>selectingBy(new ElitistSelection<>(1), new RouletteSelection<>(pop.size()/2), new RankSelection<>());
 		//pop.forEach(bi -> bi.);
 		ranked.forEach((x) -> System.out.println(x));
 		var repopulator = new RepopulatorImpl<BinaryIndividual>(b -> new BinaryIndividual(b.getGenome().getInt()))
@@ -45,10 +48,11 @@ public class Main
 			@Override
 			public BinaryIndividual apply(Population<BinaryIndividual> t)
 			{
-				// TODO Auto-generated method stub
+				System.out.println("Selected is: " + selector.select(ranked));
 				return super.apply(t);
 			}
 		};
+		var next = repopulator.collectN(pop, pop.size());
 		// define repopulator
 		// do {
 		// evaluator.evaluate(population)

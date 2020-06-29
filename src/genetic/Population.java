@@ -57,7 +57,7 @@ public class Population<T extends Individual> extends ArrayList<T>
 				"Population: [%s, %s, %s, ... %d more Individuals ..., %s, %s, %s], size: %d",
 				this.get(0), this.get(1), this.get(2), size() - 6, this.get(size() - 3),
 				this.get(size() - 2), this.get(size() - 1), this.size());
-		return String.format("Population: %s", this);
+		return String.format("Population: %s, size: %d", super.toString(), this.size());
 	}
 	
 }

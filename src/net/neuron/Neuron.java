@@ -39,7 +39,7 @@ public class Neuron
 	public void update()
 	{
 		value = 0;
-		for(MultiplierConnection c : inputs)
+		for(var c : inputs)
 		{
 			value += c.getValue();
 		}
