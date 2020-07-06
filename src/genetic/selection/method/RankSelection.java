@@ -9,26 +9,27 @@ import genetic.evaluate.Evaluation;
 
 public class RankSelection<T extends Individual> extends RouletteSelection<T>
 {
-	public RankSelection(int iterations)
-	{
-		this.withIterations(iterations);
-	}
-	
 	public RankSelection()
 	{
-		this.checker = () -> false;
+		super();
+	}
+	
+	public RankSelection(int iterations)
+	{
+		super(iterations);
 	}
 	
 	@Override
-	public <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)
+	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{
-		ranked.sort(Comparator.comparing(Evaluation::result));
+		var sorted = new ArrayList<>(ranked); // we don't want to alter our inputs
+		sorted.sort(Comparator.comparing(Evaluation::result));
 		var altered = new ArrayList<Evaluation<T, Double>>();
 		double rank = 0;
-		for(var eval : ranked)
+		for(var eval : sorted)
 		{
 			altered.add(new Evaluation<>(eval.individual(), ++rank));
 		}
-		return super.select(altered);
+		return super.selectIndividual(altered);
 	}
 }

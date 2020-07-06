@@ -18,7 +18,7 @@ import net.neuron.Neuron;
 public class NetworkTest
 {
 	@Test
-	public void testNeurons() throws Exception
+	public void testNeurons() throws ReflectiveOperationException
 	{
 		Neuron[] neurons = new Neuron[8];
 		// first 3 neurons are input neurons, with values 1, 2, and 3

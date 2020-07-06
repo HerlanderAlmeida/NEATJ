@@ -7,10 +7,15 @@ import genetic.genome.Genomic;
  * It is possible, but not recommended, to use the types here to confuse people.
  * Individuals are members of a population.
  */
-public interface Individual extends Instantiable, Castable<Individual>, Genomic
+public abstract class Individual implements Instantiable, Castable<Individual>, Genomic
 {
 	@Override
-	Individual getInstance();
+	public abstract Individual getInstance();
 	
-	Individual copy();
+	public abstract Individual copy();
+	
+	protected final <T extends Individual> T crossoverError()
+	{
+		throw new IllegalArgumentException("Argument is not an instance of " + getClass().getSimpleName());
+	}
 }

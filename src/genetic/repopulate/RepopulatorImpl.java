@@ -2,6 +2,7 @@ package genetic.repopulate;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
@@ -10,12 +11,11 @@ import genetic.Population;
 
 public abstract class RepopulatorImpl<T extends Individual> implements Repopulator<T>
 {
-	protected Random random;
+	protected static final Random random = ThreadLocalRandom.current();
 	protected Function<T, T> copier;
 	
 	public RepopulatorImpl(Function<T, T> copyFunc)
 	{
-		random = new Random();
 		copier = copyFunc;
 	}
 	

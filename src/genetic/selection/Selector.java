@@ -11,6 +11,7 @@ import genetic.selection.method.SelectionMethod;
 public class Selector<T extends Individual>
 {
 	private Queue<SelectionMethod<T>> methods;
+	private Queue<SelectionMethod<T>> complete = new ArrayDeque<>();
 	
 	/**
 	 * @return A {@link Selector} with the given {@link SelectionMethod SelectionMethod(s)}
@@ -31,13 +32,24 @@ public class Selector<T extends Individual>
 		this.methods = new ArrayDeque<>(List.of(methods));
 		return this;
 	}
+	
+	public void reset()
+	{
+		while(!methods.isEmpty())
+		{
+			complete.add(methods.poll());
+		}
+		methods.addAll(complete);
+		complete.clear();
+		methods.forEach(SelectionMethod::reset);
+	}
 
 	public <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)
 	{
 		var selector = methods.peek();
 		while(selector.finished())
 		{
-			methods.poll();
+			complete.add(methods.poll());
 			selector = methods.peek();
 			if(selector == null)
 				throw new NullPointerException("No selection methods remain to be executed in the selector!");

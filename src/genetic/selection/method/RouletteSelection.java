@@ -9,31 +9,31 @@ import genetic.evaluate.Evaluation;
 
 public class RouletteSelection<T extends Individual> extends SelectionMethod<T>
 {
-	public RouletteSelection(int iterations)
-	{
-		this.withIterations(iterations);
-	}
-	
 	public RouletteSelection()
 	{
-		this.checker = () -> false;
+		super();
+	}
+	
+	public RouletteSelection(int iterations)
+	{
+		super(iterations);
 	}
 	
 	@Override
-	public <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)
+	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{
 		var converted = ranked.stream().map(eval -> new Evaluation<>(eval.individual(), eval.result().doubleValue())).collect(Collectors.toList());
 		var least = converted.stream().min(Comparator.comparing(Evaluation::result)).get().result();
 		if(least < 0)
 			converted = converted.stream().map(eval -> new Evaluation<>(eval.individual(), eval.result() - least + 1.0)).collect(Collectors.toList());
-		else if(least == 0)
+		else if(least == 0d)
 			converted = converted.stream().map(eval -> new Evaluation<>(eval.individual(), eval.result() + 1.0)).collect(Collectors.toList());
 		var sum = converted.stream().collect(Collectors.summingDouble(Evaluation::result));
-		var differentiator = random.nextDouble(0, sum);
+		var differentiator = random.nextDouble() * sum;
 		for(var eval : converted)
 		{
 			differentiator -= eval.result();
-			if(differentiator < 0)
+			if(differentiator <= 0)
 				return eval.individual();
 		}
 		return converted.get(converted.size() - 1).individual();
