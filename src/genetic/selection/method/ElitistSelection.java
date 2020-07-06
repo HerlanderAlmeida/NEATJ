@@ -27,6 +27,13 @@ public class ElitistSelection<T extends Individual> extends SelectionMethod<T>
 	}
 	
 	@Override
+	public void reset()
+	{
+		super.reset();
+		this.withIndex(0);
+	}
+	
+	@Override
 	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{
 		var selected = ranked.get(currentIndex);
