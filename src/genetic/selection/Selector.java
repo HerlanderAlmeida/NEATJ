@@ -1,6 +1,7 @@
 package genetic.selection;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
@@ -44,6 +45,11 @@ public class Selector<T extends Individual>
 		methods.forEach(SelectionMethod::reset);
 	}
 
+	/**
+	 * @param <R> Result of evaluations
+	 * @param ranked A list of evaluated individuals, sorted in descending order of evaluation
+	 * @return A single individual, selected according to the current selection method
+	 */
 	public <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)
 	{
 		var selector = methods.peek();
@@ -54,6 +60,6 @@ public class Selector<T extends Individual>
 			if(selector == null)
 				throw new NullPointerException("No selection methods remain to be executed in the selector!");
 		}
-		return selector.select(ranked);
+		return selector.select(new ArrayList<>(ranked));
 	}
 }

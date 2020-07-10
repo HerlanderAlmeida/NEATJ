@@ -54,6 +54,11 @@ public abstract class SelectionMethod<T extends Individual>
 		return checker.get();
 	}
 	
+	/**
+	 * @param <R> Result of evaluations
+	 * @param ranked A list of evaluated individuals, sorted in descending order of evaluation
+	 * @return A single individual, selected according to this selection method
+	 */
 	protected abstract <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked);
 
 	public final <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)

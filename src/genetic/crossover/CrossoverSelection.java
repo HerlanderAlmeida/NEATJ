@@ -9,9 +9,9 @@ import genetic.selection.method.SelectionMethod;
 
 public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 {
-	private SelectionMethod<T> firstSelector;
-	private SelectionMethod<T> secondSelector;
-	private BinaryOperator<T> crossover;
+	protected SelectionMethod<T> firstSelector;
+	protected SelectionMethod<T> secondSelector;
+	protected BinaryOperator<T> crossover;
 	
 	public CrossoverSelection()
 	{

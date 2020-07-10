@@ -1,4 +1,4 @@
-package temp;
+package test.binary;
 
 import genetic.genome.Genome;
 
@@ -8,21 +8,21 @@ public class BinaryGenome implements Genome
 	
 	public BinaryGenome(int i)
 	{
-		setInt(i);
+		integer(i);
 	}
 	
-	public int getInt()
+	public int integer()
 	{
 		return my_int;
 	}
 	
-	public void setInt(int integer)
+	public void integer(int integer)
 	{
 		this.my_int = integer;
 	}
 
 	public BinaryGenome copy()
 	{
-		return new BinaryGenome(getInt());
+		return new BinaryGenome(integer());
 	}
 }

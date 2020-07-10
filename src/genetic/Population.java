@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * It is possible, but not recommended, to use the types here to confuse people.
@@ -39,7 +39,7 @@ public class Population<T extends Individual> extends ArrayList<T>
 	{
 		this(n);
 		Objects.requireNonNull(supplier);
-		IntStream.range(0, n).forEach(i -> this.add(supplier.get()));
+		Stream.generate(supplier).limit(n).forEach(this::add);
 	}
 	
 	public Population<T> join(Population<? extends T> other)

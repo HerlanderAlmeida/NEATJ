@@ -1,4 +1,4 @@
-package temp;
+package test.binary;
 
 import java.util.Random;
 
@@ -28,25 +28,19 @@ public class BinaryIndividual extends Individual
 	
 	public String toString()
 	{
-		return String.format("BI(%"+BITS+"s)", Integer.toBinaryString(getGenome().getInt())).replaceAll(" ", "0");
-	}
-	
-	@Override
-	public BinaryIndividual getInstance()
-	{
-		return new BinaryIndividual();
+		return String.format("BI(%"+BITS+"s)", Integer.toBinaryString(genome().integer())).replaceAll(" ", "0");
 	}
 	
 	private BinaryIndividual withInt(int i)
 	{
-		getGenome().setInt(i);
+		genome().integer(i);
 		return this;
 	}
 	
 	@Override
 	public BinaryIndividual copy()
 	{
-		return new BinaryIndividual().withInt(getGenome().getInt());
+		return new BinaryIndividual().withInt(genome().integer());
 	}
 	
 	public static int getBits()
@@ -55,7 +49,7 @@ public class BinaryIndividual extends Individual
 	}
 	
 	@Override
-	public BinaryGenome getGenome()
+	public BinaryGenome genome()
 	{
 		return this.genome.cast();
 	}
@@ -73,18 +67,18 @@ public class BinaryIndividual extends Individual
 		int flag = -1 >>> first + 32-BITS;
 		int flag2 = -1 >>> second + 33-BITS;
 		flag ^= flag2;
-		var ret = new BinaryIndividual((this.getGenome().getInt() & flag) | (other.getGenome().getInt() & ~flag));
+		var ret = new BinaryIndividual((this.genome().integer() & flag) | (other.genome().integer() & ~flag));
 		return ret;
 	}
 	
 	public BinaryIndividual mutateIndividual()
 	{
-		return getInstance();
+		return new BinaryIndividual();
 	}
 	
 	public BinaryIndividual mutatePoint()
 	{
 		int flag = (1 << RNG.nextInt(BITS));
-		return this.withInt(getGenome().getInt() ^ flag);
+		return this.withInt(genome().integer() ^ flag);
 	}
 }

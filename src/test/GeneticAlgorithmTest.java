@@ -19,7 +19,7 @@ import genetic.selection.Selector;
 import genetic.selection.method.ElitistSelection;
 import genetic.selection.method.RankSelection;
 import genetic.selection.method.RouletteSelection;
-import temp.BinaryIndividual;
+import test.binary.BinaryIndividual;
 
 public class GeneticAlgorithmTest
 {
@@ -27,11 +27,11 @@ public class GeneticAlgorithmTest
 	public void testBinaryGeneticAlgorithm()
 	{
 		// initialize population
-		var pop = new Population<>(50, BinaryIndividual::new);
+		var pop = new Population<>(20, BinaryIndividual::new);
 		// define evaluator
 		var eval = Evaluator.<BinaryIndividual, Integer>of(b ->
 		{
-			return Integer.bitCount(b.getGenome().getInt());
+			return Integer.bitCount(b.genome().integer());
 		});
 		// define crossover
 		CrossoverMethod<BinaryIndividual> crossover = BinaryIndividual::crossover;
@@ -71,7 +71,9 @@ public class GeneticAlgorithmTest
 			// track the best individual
 			best = ranked.get(0);
 		}
-		while(generations < 1000);
+		while(generations < 1000 && best.result() < 30);
 		Assertions.assertEquals(30, best.result());
+		Assertions.assertTrue(generations < 1000);
+		System.out.println("Genetic algorithm test completed in "+generations+" generations.");
 	}
 }
