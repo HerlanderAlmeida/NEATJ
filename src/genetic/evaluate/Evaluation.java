@@ -16,8 +16,5 @@ public record Evaluation<T extends Individual, R> (T individual, R result)
 {
 	public Evaluation
 	{
-		if(individual == null)
-			throw new IllegalArgumentException(
-				"Evaluations must be associated with non-null Individuals!");
 	}
 }

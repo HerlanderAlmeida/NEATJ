@@ -12,30 +12,21 @@ import net.neuron.Neuron;
 public class NeuralGenome implements Genome
 {
 	private ArrayList<NeuralGene> genes;
-	private int inputs;
-	private int outputs;
-	private int biases;
-	private boolean recurrent;
+	private NetworkParameters networkParameters;
 	private int neurons;
 	
 	public NeuralGenome(NeuralGenome other)
 	{
-		this.genes = new ArrayList<>(other.genes());
-		this.inputs = other.inputs;
-		this.outputs = other.outputs;
-		this.biases = other.biases;
-		this.recurrent = other.recurrent;
+		this.genes = new ArrayList<>(other.genes);
+		this.networkParameters = other.networkParameters;
 		this.neurons = other.neurons;
 	}
 	
-	public NeuralGenome(int inputs, int outputs, int biases, boolean recurrent)
+	public NeuralGenome(NetworkParameters networkParameters)
 	{
 		this.genes = new ArrayList<>();
-		this.inputs = inputs;
-		this.outputs = outputs;
-		this.biases = biases;
-		this.recurrent = recurrent;
-		this.neurons = inputs + outputs + biases;
+		this.networkParameters = networkParameters;
+		this.neurons = inputs() + outputs() + biases();
 	}
 	
 	public List<NeuralGene> genes()
@@ -43,9 +34,24 @@ public class NeuralGenome implements Genome
 		return genes;
 	}
 	
+	public int inputs()
+	{
+		return this.networkParameters.inputs();
+	}
+	
+	public int outputs()
+	{
+		return this.networkParameters.outputs();
+	}
+	
+	public int biases()
+	{
+		return this.networkParameters.biases();
+	}
+	
 	public boolean recurrent()
 	{
-		return recurrent;
+		return this.networkParameters.recurrent();
 	}
 	
 	public int neurons()
@@ -53,24 +59,14 @@ public class NeuralGenome implements Genome
 		return neurons;
 	}
 	
-	public int inputs()
-	{
-		return inputs;
-	}
-	
-	public int outputs()
-	{
-		return outputs;
-	}
-	
-	public int biases()
-	{
-		return biases;
-	}
-	
 	public void neurons(int neurons)
 	{
 		this.neurons = neurons;
+	}
+	
+	public NetworkParameters networkParameters()
+	{
+		return networkParameters;
 	}
 	
 	public NeuralGenome copy()
@@ -80,9 +76,9 @@ public class NeuralGenome implements Genome
 	
 	public Network toNetwork()
 	{
-		var network = new Network(inputs, outputs, biases, recurrent);
+		var network = new Network(inputs(), outputs(), biases(), recurrent());
 		var map = new HashMap<Integer, Integer>();
-		IntStream.range(0, inputs + outputs + biases).forEach(x -> map.put(x, x));
+		IntStream.range(0, inputs() + outputs() + biases()).forEach(x -> map.put(x, x));
 		for(var gene : genes)
 		{
 			if(gene.enabled())
@@ -103,6 +99,6 @@ public class NeuralGenome implements Genome
 	
 	public String toString()
 	{
-		return String.format("NeuralGenome[genes=%s, inputs=%s, outputs=%s, biases=%s, neurons=%s, recurrent=%s]", genes, inputs, outputs, biases, neurons, recurrent);
+		return String.format("NeuralGenome[genes=%s, inputs=%s, outputs=%s, biases=%s, neurons=%s, recurrent=%s]", genes, inputs(), outputs(), biases(), neurons, recurrent());
 	}
 }

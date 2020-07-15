@@ -3,6 +3,7 @@ package net;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -61,22 +62,79 @@ public class Network
 		if(recurrent)
 			return evaluateRecurrent(inputs);
 		else
-			return evaluateFeedforward(inputs);
+			return evaluateOnce(inputs);
 	}
 	
-	public double[] evaluateRecurrent(double[] inputs)
+	private double[] evaluateRecurrent(double[] inputs)
 	{
 		throw new UnsupportedOperationException("Operation not implemented yet!");
 	}
 	
-	public double[] evaluateFeedforward(double[] inputs)
+	private double[] evaluateOnce(double[] inputValues)
 	{
-		if(inputs.length != numInputs())
+		if(inputValues.length != numInputs())
 		{
 			throw new IllegalArgumentException(String.format(
-				"Invalid number of input values: %d; Expected: %d", inputs.length, numInputs()));
+				"Invalid number of input values: %d; Expected: %d", inputValues.length, numInputs()));
 		}
-		throw new UnsupportedOperationException("Operation not implemented yet!");
+		var index = 0;
+		reset(); // for safety
+		for(var input : inputs)
+		{
+			input.value(inputValues[index++]);
+			input.flag();
+		}
+		for(var bias : biases)
+		{
+			bias.value(1);
+			bias.flag();
+		}
+		var waiting = new ArrayDeque<Neuron>();
+		for(var output : outputs)
+		{
+			waiting.offer(output);
+		}
+		while(!waiting.isEmpty())
+		{
+			var current = waiting.poll();
+			if(current.isFlagged())
+				continue;
+			var size = waiting.size();
+			for(var connection : current.allInputs())
+			{
+				var input = connection.input();
+				if(!input.isFlagged())
+				{
+					waiting.offer(input);
+				}
+			}
+			if(size == waiting.size())
+			{
+				current.update();
+				current.flag();
+			}
+			else
+			{
+				waiting.offer(current);
+			}
+		}
+		var outputValues = new double[outputs.size()];
+		index = 0;
+		for(var output : outputs)
+		{
+			outputValues[index++] = output.value();
+		}
+		reset(); // don't leave behind residue
+		return outputValues;
+	}
+	
+	public void reset()
+	{
+		for(var neuron : neurons)
+		{
+			neuron.unflag();
+			neuron.value(0);
+		}
 	}
 	
 	public int numInputs()

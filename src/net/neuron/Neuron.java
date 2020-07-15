@@ -89,6 +89,11 @@ public class Neuron
 		inputs.add(input);
 	}
 	
+	public Collection<Connection> allInputs()
+	{
+		return inputs;
+	}
+	
 	public Collection<Connection> inputs()
 	{
 		return inputs;
@@ -122,6 +127,12 @@ public class Neuron
 			value += c.getValue();
 		}
 		// apply sigmoid function or other things
+		value = sigmoid(value);
+	}
+	
+	private double sigmoid(double x)
+	{
+		return 2d / (1d + Math.exp(-4.9 * x)) - 1;
 	}
 	
 	public boolean isFlagged()
@@ -146,7 +157,7 @@ public class Neuron
 	
 	public String toString()
 	{
-		return String.format("Neuron[inputs=%s, value=%s, flagged=%s]",inputs,value,flagged);
+		return String.format("Neuron[inputs=%s, value=%s, flagged=%s]", inputs, value, flagged);
 	}
 	
 	public enum Type
