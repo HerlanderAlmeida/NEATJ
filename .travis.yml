@@ -2,4 +2,9 @@ language:
 	java
 	
 jdk:
-  - openjdk14
+  - openjdk11
+  - openjdk-ea
+
+matrix:
+  allow_failures:
+    - jdk: openjdk11
