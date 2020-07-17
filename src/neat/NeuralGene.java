@@ -1,4 +1,4 @@
-package test.neat;
+package neat;
 
 public record NeuralGene(int from, int to, double weight, boolean enabled, /* historical marker */ int marker)
 {

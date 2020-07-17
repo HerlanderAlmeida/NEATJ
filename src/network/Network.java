@@ -1,18 +1,19 @@
-package net;
+package network;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
-import net.connection.Connection;
-import net.neuron.Neuron;
+import network.connection.Connection;
+import network.neuron.Neuron;
 
 public class Network
 {
@@ -25,6 +26,12 @@ public class Network
 	private List<Neuron> neurons;
 	private boolean recurrent;
 	
+	/**
+	 * @param inputs Number of input neurons for the network
+	 * @param outputs Number of output neurons for the network
+	 * @param biases Number of bias neurons for the network
+	 * @param recurrent Whether the network supports recurrent evaluation
+	 */
 	public Network(int inputs, int outputs, int biases, boolean recurrent)
 	{
 		this.inputs = new ArrayList<>();
@@ -57,6 +64,11 @@ public class Network
 		}
 	}
 	
+	public double[] evaluate(int[] inputs)
+	{
+		return evaluate(Arrays.stream(inputs).asDoubleStream().toArray());
+	}
+	
 	public double[] evaluate(double[] inputs)
 	{
 		if(recurrent)
@@ -75,7 +87,7 @@ public class Network
 		if(inputValues.length != numInputs())
 		{
 			throw new IllegalArgumentException(String.format(
-				"Invalid number of input values: %d; Expected: %d", inputValues.length, numInputs()));
+				"Invalid number of input values: expected %d, found %d", numInputs(), inputValues.length));
 		}
 		var index = 0;
 		reset(); // for safety

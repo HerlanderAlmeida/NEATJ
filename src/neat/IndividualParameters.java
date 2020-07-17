@@ -1,12 +1,12 @@
-package test.neat;
+package neat;
 
 import java.util.Random;
 
-public record IndividualParameters(double weightMutationProbability,
+public record IndividualParameters(double metaMutationProbability, double weightMutationProbability,
 	double randomWeightMutationProbability, double linkMutationProbability,
-	double biasLinkMutationProbability, double neuronMutationProbability,
-	double enableMutationProbability, double disableMutationProbability,
-	double destroyMutationProbability)
+	double biasLinkMutationProbability, double sensorMutationProbability,
+	double neuronMutationProbability, double enableMutationProbability,
+	double disableMutationProbability, double destroyMutationProbability)
 {
 	
 	public IndividualParameters mutateProbabilities(Random random)
@@ -14,6 +14,8 @@ public record IndividualParameters(double weightMutationProbability,
 		// mutate by 0.95, or 1/0.95
 		var less = 0.95;
 		var more = 1.0526315789473684210526315789474;
+		var metaMutationProbability = this.metaMutationProbability
+			* (random.nextBoolean() ? more : less);
 		var weightMutationProbability = this.weightMutationProbability
 			* (random.nextBoolean() ? more : less);
 		var randomWeightMutationProbability = this.randomWeightMutationProbability
@@ -21,6 +23,8 @@ public record IndividualParameters(double weightMutationProbability,
 		var linkMutationProbability = this.linkMutationProbability
 			* (random.nextBoolean() ? more : less);
 		var biasLinkMutationProbability = this.biasLinkMutationProbability
+			* (random.nextBoolean() ? more : less);
+		var sensorMutationProbability = this.sensorMutationProbability
 			* (random.nextBoolean() ? more : less);
 		var neuronMutationProbability = this.neuronMutationProbability
 			* (random.nextBoolean() ? more : less);
@@ -30,9 +34,10 @@ public record IndividualParameters(double weightMutationProbability,
 			* (random.nextBoolean() ? more : less);
 		var destroyMutationProbability = this.destroyMutationProbability
 			* (random.nextBoolean() ? more : less);
-		return new IndividualParameters(weightMutationProbability, randomWeightMutationProbability,
-			linkMutationProbability, biasLinkMutationProbability, neuronMutationProbability,
-			enableMutationProbability, disableMutationProbability, destroyMutationProbability);
+		return new IndividualParameters(metaMutationProbability, weightMutationProbability,
+			randomWeightMutationProbability, linkMutationProbability, biasLinkMutationProbability,
+			sensorMutationProbability, neuronMutationProbability, enableMutationProbability,
+			disableMutationProbability, destroyMutationProbability);
 	}
 	
 	public static Builder builder()
@@ -40,16 +45,36 @@ public record IndividualParameters(double weightMutationProbability,
 		return new Builder();
 	}
 	
+	public IndividualParameters copy()
+	{
+		return new IndividualParameters(metaMutationProbability, weightMutationProbability,
+			randomWeightMutationProbability, linkMutationProbability, biasLinkMutationProbability,
+			sensorMutationProbability, neuronMutationProbability, enableMutationProbability,
+			disableMutationProbability, destroyMutationProbability);
+	}
+	
 	public static class Builder
 	{
+		private double metaMutationProbability = 1;
 		private double weightMutationProbability = 0.225;
 		private double randomWeightMutationProbability = 0.025;
 		private double linkMutationProbability = 2;
 		private double biasLinkMutationProbability = 0.4;
+		private double sensorMutationProbability = 0.4;
 		private double neuronMutationProbability = 0.5;
 		private double enableMutationProbability = 0.4;
 		private double disableMutationProbability = 0.2;
 		private double destroyMutationProbability = 0.01;
+		
+		private Builder()
+		{
+		}
+		
+		public Builder withMetaMutationProbability(double metaMutationProbability)
+		{
+			this.metaMutationProbability = metaMutationProbability;
+			return this;
+		}
 		
 		public Builder withWeightMutationProbability(double weightMutationProbability)
 		{
@@ -72,6 +97,12 @@ public record IndividualParameters(double weightMutationProbability,
 		public Builder withBiasLinkMutationProbability(double biasLinkMutationProbability)
 		{
 			this.biasLinkMutationProbability = biasLinkMutationProbability;
+			return this;
+		}
+		
+		public Builder withSensorMutationProbability(double sensorMutationProbability)
+		{
+			this.sensorMutationProbability = sensorMutationProbability;
 			return this;
 		}
 		
@@ -101,10 +132,10 @@ public record IndividualParameters(double weightMutationProbability,
 		
 		public IndividualParameters build()
 		{
-			return new IndividualParameters(weightMutationProbability,
+			return new IndividualParameters(metaMutationProbability, weightMutationProbability,
 				randomWeightMutationProbability, linkMutationProbability,
-				biasLinkMutationProbability, neuronMutationProbability, enableMutationProbability,
-				disableMutationProbability, destroyMutationProbability);
+				biasLinkMutationProbability, sensorMutationProbability, neuronMutationProbability,
+				enableMutationProbability, disableMutationProbability, destroyMutationProbability);
 		}
 	}
 }

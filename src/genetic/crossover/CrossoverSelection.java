@@ -12,6 +12,7 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 	protected SelectionMethod<T> firstSelector;
 	protected SelectionMethod<T> secondSelector;
 	protected BinaryOperator<T> crossover;
+	protected double crossoverProbability = 1;
 	
 	public CrossoverSelection()
 	{
@@ -45,6 +46,12 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 		return this;
 	}
 	
+	public CrossoverSelection<T> withCrossoverProbability(double crossoverProbability)
+	{
+		this.crossoverProbability = crossoverProbability;
+		return this;
+	}
+	
 	@Override
 	public void reset()
 	{
@@ -58,6 +65,13 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 	{
 		var first = firstSelector.select(ranked);
 		var second = secondSelector.select(ranked);
-		return this.crossover.apply(first, second);
+		if(random.nextDouble() < crossoverProbability)
+		{
+			return this.crossover.apply(first, second);
+		}
+		else
+		{
+			return random.nextBoolean() ? first : second;
+		}
 	}
 }

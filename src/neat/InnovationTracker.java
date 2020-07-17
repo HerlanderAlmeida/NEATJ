@@ -1,7 +1,7 @@
-package test.neat;
+package neat;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Innovation tracker for historical markers
@@ -9,12 +9,7 @@ import java.util.List;
 public class InnovationTracker
 {
 	private int marker = 0;
-	private List<Innovation> genes = new ArrayList<>();
-	
-	record Innovation(int from, int to, int marker)
-	{
-	}
-	
+	private Map<Integer, Map<Integer, Integer>> genes = new HashMap<>();
 	/**
 	 * For each generation, the same connection must be a different innovation.
 	 * Calling this method each generation will let that be the case.
@@ -29,10 +24,23 @@ public class InnovationTracker
 	 */
 	public int getMarker(int from, int to)
 	{
-		for(var gene : genes)
-			if(gene.from() == from && gene.to() == to)
-				return gene.marker();
-		genes.add(new Innovation(from, to, marker));
+		if(genes.containsKey(from))
+		{
+			var map = genes.get(from);
+			if(map.containsKey(to))
+			{
+				return map.get(to);
+			}
+			else
+			{
+				map.put(to, marker);
+			}
+		}
+		else
+		{
+			genes.put(from, new HashMap<>());
+			genes.get(from).put(to, marker);
+		}
 		return marker++;
 	}
 }

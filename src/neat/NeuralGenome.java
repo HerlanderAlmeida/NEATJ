@@ -1,13 +1,14 @@
-package test.neat;
+package neat;
 
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import genetic.genome.Genome;
-import net.Network;
-import net.neuron.Neuron;
+import network.Network;
+import network.neuron.Neuron;
 
 public class NeuralGenome implements Genome
 {
@@ -74,26 +75,26 @@ public class NeuralGenome implements Genome
 		return new NeuralGenome(this);
 	}
 	
-	public Network toNetwork()
+	public Network toNetwork(Supplier<Neuron> supplier)
 	{
 		var network = new Network(inputs(), outputs(), biases(), recurrent());
 		var map = new HashMap<Integer, Integer>();
 		IntStream.range(0, inputs() + outputs() + biases()).forEach(x -> map.put(x, x));
-		for(var gene : genes)
+		genes.stream().filter(NeuralGene::enabled).forEach(gene -> 
 		{
 			if(gene.enabled())
 			{
 				if(!map.containsKey(gene.from()))
 				{
-					map.put(gene.from(),network.addNeuron(new Neuron()));
+					map.put(gene.from(),network.addNeuron(supplier.get()));
 				}
 				if(!map.containsKey(gene.to()))
 				{
-					map.put(gene.to(),network.addNeuron(new Neuron()));
+					map.put(gene.to(),network.addNeuron(supplier.get()));
 				}
 				network.addConnection(map.get(gene.from()), map.get(gene.to()), gene.weight());
 			}
-		}
+		});
 		return network;
 	}
 	

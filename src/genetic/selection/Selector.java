@@ -9,7 +9,7 @@ import genetic.Individual;
 import genetic.evaluate.Evaluation;
 import genetic.selection.method.SelectionMethod;
 
-public class Selector<T extends Individual>
+public class Selector<T extends Individual> extends SelectionMethod<T>
 {
 	private Queue<SelectionMethod<T>> methods;
 	private Queue<SelectionMethod<T>> complete = new ArrayDeque<>();
@@ -50,7 +50,7 @@ public class Selector<T extends Individual>
 	 * @param ranked A list of evaluated individuals, sorted in descending order of evaluation
 	 * @return A single individual, selected according to the current selection method
 	 */
-	public <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)
+	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{
 		var selector = methods.peek();
 		while(selector.finished())
@@ -58,7 +58,10 @@ public class Selector<T extends Individual>
 			complete.add(methods.poll());
 			selector = methods.peek();
 			if(selector == null)
-				throw new NullPointerException("No selection methods remain to be executed in the selector!");
+			{
+				reset();
+				selector = methods.peek();
+			}
 		}
 		return selector.select(new ArrayList<>(ranked));
 	}

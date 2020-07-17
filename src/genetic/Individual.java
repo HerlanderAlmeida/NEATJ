@@ -10,9 +10,4 @@ import genetic.genome.Genomic;
 public abstract class Individual implements Castable<Individual>, Genomic
 {
 	public abstract Individual copy();
-	
-	protected final <T extends Individual> T crossoverError()
-	{
-		throw new IllegalArgumentException("Argument is not an instance of " + getClass().getSimpleName());
-	}
 }

@@ -3,7 +3,6 @@ package genetic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -21,15 +20,6 @@ public class Population<T extends Individual> extends ArrayList<T>
 		super(size);
 	}
 	
-	public Population(int n, Function<Object[], T> constructor, Object... params)
-	{
-		this(n);
-		for(int i = 0; i < n; i++)
-		{
-			this.add(constructor.apply(params));
-		}
-	}
-	
 	public Population(Collection<T> c)
 	{
 		this(c.size(), c.iterator()::next);
@@ -40,14 +30,6 @@ public class Population<T extends Individual> extends ArrayList<T>
 		this(n);
 		Objects.requireNonNull(supplier);
 		Stream.generate(supplier).limit(n).forEach(this::add);
-	}
-	
-	public Population<T> join(Population<? extends T> other)
-	{
-		Population<T> joined = new Population<>(this.size() + other.size());
-		joined.addAll(this);
-		joined.addAll(other);
-		return joined;
 	}
 	
 	public String toString()

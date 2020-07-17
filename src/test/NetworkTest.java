@@ -5,8 +5,8 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import net.connection.Connection;
-import net.neuron.Neuron;
+import network.connection.Connection;
+import network.neuron.Neuron;
 
 public class NetworkTest
 {
@@ -38,18 +38,18 @@ public class NetworkTest
 		neurons[4] = new Neuron(List.of(new Connection(neurons[0], 1), new Connection(neurons[1], 2)));
 		neurons[5] = new Neuron(List.of(new Connection(neurons[1], 1), new Connection(neurons[2], 2)));
 		neurons[6] = new Neuron(List.of(new Connection(neurons[2], 1), new Connection(neurons[3], 2)));
-		neurons[7] = new Neuron(List.of(new Connection(neurons[4], 0.2),
-			new Connection(neurons[5], 0.2), new Connection(neurons[6], 0.2)));
+		neurons[7] = new Neuron(List.of(new Connection(neurons[4], -0.2),
+			new Connection(neurons[5], -0.2), new Connection(neurons[6], -2)));
 		for(int i = 3; i < neurons.length; i++)
 		{
 			neurons[i].update();
 		}
 		
-		Assertions.assertEquals(1.7, neurons[3].value(), 1e-10);
-		Assertions.assertEquals(5, neurons[4].value(), 1e-10);
-		Assertions.assertEquals(8, neurons[5].value(), 1e-10);
-		Assertions.assertEquals(6.4, neurons[6].value(), 1e-10);
-		Assertions.assertEquals(3.88, neurons[7].value(), 1e-10);
+		Assertions.assertTrue(neurons[3].value() > 0.9);
+		Assertions.assertTrue(neurons[4].value() > 0.9);
+		Assertions.assertTrue(neurons[5].value() > 0.9);
+		Assertions.assertTrue(neurons[6].value() > 0.9);
+		Assertions.assertTrue(neurons[7].value() < -0.9);
 	}
 	
 //	@Test

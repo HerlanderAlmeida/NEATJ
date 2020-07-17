@@ -1,4 +1,4 @@
-package test.neat;
+package neat;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -10,42 +10,35 @@ import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import genetic.Individual;
-import net.Network;
-
-public class NeuralIndividual extends Individual
+public class NeuralIndividual extends SpeciesIndividual<Double>
 {
 	private static final Random RNG = new Random();
 	private NeuralGenome genome;
 	private InnovationTracker tracker;
 	// per-individual parameter values
 	private IndividualParameters individualParameters;
-	// global parameter values
-	private Parameters parameters;
-	private double evaluation;
+	// generic parameter values
+	private double fitness;
 	
 	private NeuralIndividual(Object[] o)
 	{
-		this((InnovationTracker) o[0], (NetworkParameters) o[1], (IndividualParameters) o[2],
-			(Parameters) o[3]);
+		this((InnovationTracker) o[0], (NetworkParameters) o[1], (IndividualParameters) o[2]);
 	}
 	
 	private NeuralIndividual(InnovationTracker tracker, NetworkParameters networkParameters,
-		IndividualParameters individualParameters, Parameters parameters)
+		IndividualParameters individualParameters)
 	{
 		genome = new NeuralGenome(networkParameters);
 		this.tracker = tracker;
 		this.individualParameters = individualParameters;
-		this.parameters = parameters;
 	}
 	
 	private NeuralIndividual(NeuralIndividual other)
 	{
 		this.genome = new NeuralGenome(other.genome().copy());
 		this.tracker = other.tracker;
-		this.individualParameters = other.individualParameters;
-		this.parameters = other.parameters;
-		this.evaluation = other.evaluation;
+		this.individualParameters = other.individualParameters.copy();
+		this.fitness = other.fitness;
 	}
 	
 	@Override
@@ -60,79 +53,95 @@ public class NeuralIndividual extends Individual
 		return this.genome.cast();
 	}
 	
-	public double evaluation()
+	public Double fitness()
 	{
-		return this.evaluation;
+		return this.fitness;
 	}
 	
-	public void evaluation(double evaluation)
+	public void fitness(Double fitness)
 	{
-		this.evaluation = evaluation;
+		this.fitness = fitness;
 	}
 	
-	public double distance(NeuralIndividual other)
+	public void divideFitness(double sharers)
 	{
-		var genome1 = this.genome;
-		var genome2 = other.genome;
-		Collections.sort(genome1.genes(), Comparator.comparingInt(NeuralGene::marker));
-		Collections.sort(genome2.genes(), Comparator.comparingInt(NeuralGene::marker));
-		var iter1 = genome1.genes().iterator();
-		var iter2 = genome2.genes().iterator();
-		NeuralGene gene1 = iter1.hasNext() ? iter1.next() : null;
-		NeuralGene gene2 = iter2.hasNext() ? iter2.next() : null;
-		var disjoint = 0d;
-		var excess = 0d;
-		var weightDiffs = 0d;
-		var joint = 0d;
-		while(gene1 != null && gene2 != null)
+		this.fitness /= sharers;
+	}
+	
+	public IndividualParameters individualParameters()
+	{
+		return this.individualParameters;
+	}
+	
+	public Double difference(SpeciesIndividual<Double> di, SpeciationParameters parameters)
+	{
+		if(di instanceof NeuralIndividual other)
 		{
-			if(gene1.marker() < gene2.marker())
+			var genome1 = this.genome;
+			var genome2 = other.genome;
+			Collections.sort(genome1.genes(), Comparator.comparingInt(NeuralGene::marker));
+			Collections.sort(genome2.genes(), Comparator.comparingInt(NeuralGene::marker));
+			var iter1 = genome1.genes().iterator();
+			var iter2 = genome2.genes().iterator();
+			NeuralGene gene1 = iter1.hasNext() ? iter1.next() : null;
+			NeuralGene gene2 = iter2.hasNext() ? iter2.next() : null;
+			var disjoint = 0d;
+			var excess = 0d;
+			var weightDiffs = 0d;
+			var joint = 0d;
+			while(gene1 != null && gene2 != null)
 			{
-				disjoint++;
-				gene1 = iter1.hasNext() ? iter1.next() : null;
+				if(gene1.marker() < gene2.marker())
+				{
+					disjoint++;
+					gene1 = iter1.hasNext() ? iter1.next() : null;
+				}
+				else if(gene1.marker() > gene2.marker())
+				{
+					disjoint++;
+					gene2 = iter2.hasNext() ? iter2.next() : null;
+				}
+				else if(gene1.marker() == gene2.marker())
+				{
+					weightDiffs += Math.abs(gene1.weight() - gene2.weight());
+					joint++;
+					gene1 = iter1.hasNext() ? iter1.next() : null;
+					gene2 = iter2.hasNext() ? iter2.next() : null;
+				}
 			}
-			else if(gene1.marker() > gene2.marker())
+			if(gene1 != null || gene2 != null)
+				excess++;
+			while(iter1.hasNext())
 			{
-				disjoint++;
-				gene2 = iter2.hasNext() ? iter2.next() : null;
+				excess++;
+				iter1.next();
 			}
-			else if(gene1.marker() == gene2.marker())
+			while(iter2.hasNext())
 			{
-				weightDiffs += Math.abs(gene1.weight() - gene2.weight());
-				joint++;
-				gene1 = iter1.hasNext() ? iter1.next() : null;
-				gene2 = iter2.hasNext() ? iter2.next() : null;
+				excess++;
+				iter2.next();
 			}
+			double largerGenomeSize = Math.max(1,
+				Math.max(genome1.genes().size(), genome2.genes().size()));
+			return parameters.excessCoefficient() * excess / largerGenomeSize
+				+ parameters.disjointCoefficient() * disjoint / largerGenomeSize
+				+ parameters.weightDifferenceCoefficient() * weightDiffs / Math.max(1, joint);
 		}
-		while(iter1.hasNext())
-		{
-			excess++;
-			iter1.next();
-		}
-		while(iter2.hasNext())
-		{
-			excess++;
-			iter2.next();
-		}
-		double largerGenomeSize = Math.max(1,
-			Math.max(genome1.genes().size(), genome2.genes().size()));
-		return parameters.excessCoefficient() * excess / largerGenomeSize
-			+ parameters.disjointCoefficient() * disjoint / largerGenomeSize
-			+ parameters.weightDifferenceCoefficient() * weightDiffs / Math.max(1, joint);
+		else
+			throw new IllegalArgumentException(
+				"Arbitrary DifferentialIndividual distance not supported!");
 	}
 	
 	public NeuralIndividual crossover(NeuralIndividual other)
 	{
-		distance(other);
 		var genome1 = this.genome;
 		var genome2 = other.genome;
-		var evaluation1 = this.evaluation;
-		var evaluation2 = other.evaluation;
-		var individualParameters = this.evaluation > other.evaluation ? this.individualParameters
-			: this.evaluation < other.evaluation ? other.individualParameters
+		var evaluation1 = this.fitness;
+		var evaluation2 = other.fitness;
+		var individualParameters = this.fitness > other.fitness ? this.individualParameters
+			: this.fitness < other.fitness ? other.individualParameters
 				: RNG.nextBoolean() ? this.individualParameters : other.individualParameters;
-		var child = new NeuralIndividual(tracker, genome.networkParameters(), individualParameters,
-			parameters);
+		var child = new NeuralIndividual(tracker, genome.networkParameters(), individualParameters);
 		Collections.sort(genome1.genes(), Comparator.comparingInt(NeuralGene::marker));
 		Collections.sort(genome2.genes(), Comparator.comparingInt(NeuralGene::marker));
 		var iter1 = genome1.genes().iterator();
@@ -156,14 +165,24 @@ public class NeuralIndividual extends Individual
 			}
 			else if(gene1.marker() == gene2.marker())
 			{
-				joint.add(RNG.nextBoolean() ? gene1 : gene2);
+				var next = RNG.nextBoolean() ? gene1 : gene2;
+				var enabled = RNG.nextBoolean() ? gene1.enabled() : gene2.enabled();
+				joint.add(next.withEnabled(enabled));
 				gene1 = iter1.hasNext() ? iter1.next() : null;
 				gene2 = iter2.hasNext() ? iter2.next() : null;
 			}
 		}
+		if(gene1 != null)
+		{
+			exclusive1.add(gene1);
+		}
 		while(iter1.hasNext())
 		{
 			exclusive1.add(iter1.next());
+		}
+		if(gene2 != null)
+		{
+			exclusive2.add(gene2);
 		}
 		while(iter2.hasNext())
 		{
@@ -195,31 +214,48 @@ public class NeuralIndividual extends Individual
 	public NeuralIndividual mutateComprehensively()
 	{
 		individualParameters = individualParameters.mutateProbabilities(RNG);
-		for(var chance = individualParameters.weightMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateWeight();
-		for(var chance = individualParameters
-			.randomWeightMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateRandomWeight();
-		for(var chance = individualParameters.linkMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateLink();
-		for(var chance = individualParameters.biasLinkMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateBiasLink();
-		for(var chance = individualParameters.neuronMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateNeuron();
-		for(var chance = individualParameters.enableMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateEnable();
-		for(var chance = individualParameters.disableMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateDisable();
-		for(var chance = individualParameters.destroyMutationProbability(); chance > 0; chance--)
-			if(chance >= 1 || RNG.nextDouble() < chance)
-				mutateDestroy();
+		for(var meta = individualParameters.metaMutationProbability(); meta > 0; meta--)
+		{
+			if(meta >= 1 || RNG.nextDouble() < meta)
+			{
+				for(var chance = individualParameters
+					.weightMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateWeight();
+				for(var chance = individualParameters
+					.randomWeightMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateRandomWeight();
+				for(var chance = individualParameters
+					.linkMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateLink();
+				for(var chance = individualParameters
+					.biasLinkMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateBiasLink();
+				for(var chance = individualParameters
+					.sensorMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateSensor();
+				for(var chance = individualParameters
+					.neuronMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateNeuron();
+				for(var chance = individualParameters
+					.enableMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateEnable();
+				for(var chance = individualParameters
+					.disableMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateDisable();
+				for(var chance = individualParameters
+					.destroyMutationProbability(); chance > 0; chance--)
+					if(chance >= 1 || RNG.nextDouble() < chance)
+						mutateDestroy();
+			}
+		}
 		return this;
 	}
 	
@@ -286,9 +322,11 @@ public class NeuralIndividual extends Individual
 			}
 		}
 		genome.genes()
-			.add(new NeuralGene(first, second,
-				RNG.nextDouble() * parameters.range() * 2 - parameters.range(), true,
-				tracker.getMarker(first, second)));
+			.add(
+				new NeuralGene(first, second,
+					RNG.nextDouble() * genome.networkParameters().range() * 2
+						- genome.networkParameters().range(),
+					true, tracker.getMarker(first, second)));
 		return this;// .9, try twice
 	}
 	
@@ -370,10 +408,52 @@ public class NeuralIndividual extends Individual
 			}
 		}
 		genome.genes()
-			.add(new NeuralGene(first, second,
-				RNG.nextDouble() * parameters.range() * 2 - parameters.range(), true,
-				tracker.getMarker(first, second)));
+			.add(
+				new NeuralGene(first, second,
+					RNG.nextDouble() * genome.networkParameters().range() * 2
+						- genome.networkParameters().range(),
+					true, tracker.getMarker(first, second)));
 		return this;// .4
+	}
+	
+	public NeuralIndividual mutateSensor()
+	{
+		var neurons = genome.neurons();
+		var inputs = genome.inputs();
+		var outputs = genome.outputs();
+		// always input, bias, or hidden
+		var first = RNG.nextInt(neurons - outputs);
+		// always output
+		var second = RNG.nextInt(outputs);
+		var inputEdge = inputs;
+		var outputEdge = inputs + outputs;
+		// network=[inputs|outputs|biases|hidden]
+		if(first >= inputs)
+		{
+			first += outputs;
+		}
+		second += inputs;
+		Predicate<Integer> isOutput = x -> x >= inputEdge && x < outputEdge;
+		if(isOutput.test(first))
+			throw new IllegalStateException(
+				"Unexpectly, output node selected as link source: " + first);
+		if(!isOutput.test(second))
+			throw new IllegalStateException(
+				"Unexpectly, non-output node selected as link destination: " + second);
+		for(var gene : genome.genes())
+		{
+			if(gene.from() == first && gene.to() == second)
+			{
+				return this;
+			}
+		}
+		genome.genes()
+			.add(
+				new NeuralGene(first, second,
+					RNG.nextDouble() * genome.networkParameters().range() * 2
+						- genome.networkParameters().range(),
+					true, tracker.getMarker(first, second)));
+		return this; // .4
 	}
 	
 	/**
@@ -386,7 +466,8 @@ public class NeuralIndividual extends Individual
 			return this;
 		var index = RNG.nextInt(genes.size());
 		var gene = genes.get(index);
-		genes.set(index, gene.withWeight(gene.weight() + RNG.nextGaussian() * parameters.step()));
+		genes.set(index, gene
+			.withWeight(gene.weight() + RNG.nextGaussian() * genome.networkParameters().step()));
 		return this;// 0.225
 	}
 	
@@ -400,8 +481,8 @@ public class NeuralIndividual extends Individual
 			return this;
 		var index = RNG.nextInt(genes.size());
 		var gene = genes.get(index);
-		genes.set(index,
-			gene.withWeight(RNG.nextDouble() * parameters.range() * 2 - parameters.range()));
+		genes.set(index, gene.withWeight(RNG.nextDouble() * genome.networkParameters().range() * 2
+			- genome.networkParameters().range()));
 		return this;// .025
 	}
 	
@@ -487,7 +568,7 @@ public class NeuralIndividual extends Individual
 		while(iter.hasNext())
 		{
 			var gene = iter.next();
-			if(!gene.enabled())
+			if(!gene.enabled() || gene.enabled())
 			{
 				disabled.add(idx);
 			}
@@ -501,11 +582,6 @@ public class NeuralIndividual extends Individual
 		return this;
 	}
 	
-	public Network phenotype()
-	{
-		return this.genome.toNetwork();
-	}
-	
 	public static Builder builder()
 	{
 		return new Builder();
@@ -513,16 +589,15 @@ public class NeuralIndividual extends Individual
 	
 	public String toString()
 	{
-		return String.format("NeuralIndividual[genome=%s, evaluation=%s]", genome, evaluation);
+		return String.format("NeuralIndividual[genome=%s, fitness=%s]", genome, fitness);
 	}
 	
 	public static class Builder
 	{
-		private int set = 0b0000;
+		private int set = 0b000;
 		private InnovationTracker tracker;
 		private NetworkParameters networkParameters;
 		private IndividualParameters individualParameters;
-		private Parameters parameters;
 		
 		private Builder()
 		{
@@ -530,44 +605,34 @@ public class NeuralIndividual extends Individual
 		
 		public Builder withInnovationTracker(InnovationTracker tracker)
 		{
-			set |= 0b1000;
+			set |= 0b100;
 			this.tracker = tracker;
 			return this;
 		}
 		
 		public Builder withNetworkParameters(NetworkParameters networkParameters)
 		{
-			set |= 0b0100;
+			set |= 0b010;
 			this.networkParameters = networkParameters;
 			return this;
 		}
 		
 		public Builder withIndividualParameters(IndividualParameters individualParameters)
 		{
-			set |= 0b0010;
+			set |= 0b001;
 			this.individualParameters = individualParameters;
-			return this;
-		}
-		
-		public Builder withParameters(Parameters parameters)
-		{
-			set |= 0b0001;
-			this.parameters = parameters;
 			return this;
 		}
 		
 		public NeuralIndividual build()
 		{
-			if((set & 0b1000) != 0b1000)
+			if((set & 0b100) != 0b100)
 				throw new IllegalStateException("Innovation tracker not set!");
-			if((set & 0b0100) != 0b0100)
+			if((set & 0b010) != 0b010)
 				throw new IllegalStateException("Network parameters not set!");
-			if((set & 0b0010) != 0b0010)
+			if((set & 0b001) != 0b001)
 				throw new IllegalStateException("Individual parameters not set!");
-			if((set & 0b0001) != 0b0001)
-				throw new IllegalStateException("Parameters not set!");
-			return new NeuralIndividual(tracker, networkParameters, individualParameters,
-				parameters);
+			return new NeuralIndividual(tracker, networkParameters, individualParameters);
 		}
 	}
 }

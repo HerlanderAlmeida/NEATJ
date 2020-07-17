@@ -1,4 +1,4 @@
-package net.neuron;
+package network.neuron;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.connection.Connection;
+import network.connection.Connection;
 
 public class Neuron
 {

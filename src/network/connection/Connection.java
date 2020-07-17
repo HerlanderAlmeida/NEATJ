@@ -1,6 +1,6 @@
-package net.connection;
+package network.connection;
 
-import net.neuron.Neuron;
+import network.neuron.Neuron;
 
 public record Connection(Neuron input, double weight)
 {

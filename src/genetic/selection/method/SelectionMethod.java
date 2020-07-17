@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import genetic.Individual;
 import genetic.evaluate.Evaluation;
@@ -14,6 +15,7 @@ public abstract class SelectionMethod<T extends Individual>
 	private int iterations;
 	private int currentIteration;
 	protected Supplier<Boolean> checker;
+	private UnaryOperator<T> postMutations = (T t) -> t;
 	
 	public SelectionMethod()
 	{
@@ -34,6 +36,12 @@ public abstract class SelectionMethod<T extends Individual>
 	protected SelectionMethod<T> withChecker(Supplier<Boolean> checker)
 	{
 		this.checker = checker;
+		return this;
+	}
+	
+	public SelectionMethod<T> withPostMutations(UnaryOperator<T> postMutations)
+	{
+		this.postMutations = postMutations;
 		return this;
 	}
 	
@@ -64,6 +72,6 @@ public abstract class SelectionMethod<T extends Individual>
 	public final <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)
 	{
 		iterate();
-		return selectIndividual(ranked);
+		return postMutations.apply(selectIndividual(ranked).copy().cast());
 	}
 }

@@ -67,7 +67,7 @@ public class GeneticAlgorithmTest
 				}
 			};
 			// repopulate
-			pop = repopulator.collectN(pop, pop.size());
+			pop = repopulator.repopulate(pop);
 			// track the best individual
 			best = ranked.get(0);
 		}
