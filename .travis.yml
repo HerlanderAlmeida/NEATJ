@@ -1,4 +1,8 @@
+os: 
+  - linux
+dist:
+  - xenial
 language:
   - java
-jdk:
+jdk: 
   - openjdk14
