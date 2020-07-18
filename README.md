@@ -1,4 +1,4 @@
-# NeuroEvolution of Augmenting Topologies in Java ![Logo](https://travis-ci.com/SpicyKitten/NEATJ.svg?branch=master)
+# NeuroEvolution of Augmenting Topologies in Java [![Build Status](https://travis-ci.com/SpicyKitten/NEATJ.svg?branch=master)](https://travis-ci.com/SpicyKitten/NEATJ)
 
 An implementation of NEAT in Java.
 
