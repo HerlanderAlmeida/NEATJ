@@ -36,7 +36,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	
 	public void updateRepresentatives()
 	{
-		for(var species : species)
+		for(var species : this.species)
 		{
 			species.updateRepresentative();
 			species.perish();
@@ -50,18 +50,18 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	
 	public Stream<Species<T, R>> stream()
 	{
-		return species.stream();
+		return this.species.stream();
 	}
 	
 	private void classifyIndividual(T t)
 	{
 		var matched = false;
-		for(var species : species)
+		for(var species : this.species)
 		{
-			if(species.representative().difference(t, speciationParameters)
-				.doubleValue() < speciationParameters.differenceThreshold())
+			if(species.representative().difference(t, this.speciationParameters)
+				.doubleValue() < this.speciationParameters.differenceThreshold())
 			{
-				var<T> pop = species.population();
+				var pop = species.population();
 				pop.add(t);
 				matched = true;
 				break;
@@ -69,10 +69,10 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		if(!matched)
 		{
-			var<T, R> newSpecies = new Species<T, R>();
+			var newSpecies = new Species<T, R>();
 			newSpecies.population(new Population<>(List.of(t)));
 			newSpecies.updateRepresentative();
-			species.add(newSpecies);
+			this.species.add(newSpecies);
 		}
 	}
 	
@@ -80,18 +80,18 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	{
 		updateRepresentatives();
 		ts.forEach(this::classifyIndividual);
-		species.removeIf(Species::perished);
-		if(species.size() > speciationParameters.desiredSpecies())
+		this.species.removeIf(Species::perished);
+		if(this.species.size() > this.speciationParameters.desiredSpecies())
 		{
-			speciationParameters = speciationParameters
-				.withDifferenceThreshold(speciationParameters.differenceThreshold()
-					+ speciationParameters.differenceThresholdStep());
+			this.speciationParameters = this.speciationParameters
+				.withDifferenceThreshold(this.speciationParameters.differenceThreshold()
+					+ this.speciationParameters.differenceThresholdStep());
 		}
-		else if(species.size() < speciationParameters.desiredSpecies())
+		else if(this.species.size() < this.speciationParameters.desiredSpecies())
 		{
-			speciationParameters = speciationParameters
-				.withDifferenceThreshold(speciationParameters.differenceThreshold()
-					- speciationParameters.differenceThresholdStep());
+			this.speciationParameters = this.speciationParameters
+				.withDifferenceThreshold(this.speciationParameters.differenceThreshold()
+					- this.speciationParameters.differenceThresholdStep());
 		}
 	}
 	
@@ -99,18 +99,18 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	{
 		var evals = ranked.collect(Collectors.toList());
 		evals.forEach(eval -> eval.individual().fitness(eval.result()));
-		species.forEach(species -> species.population().sort(
+		this.species.forEach(species -> species.population().sort(
 			Comparator.<SpeciesIndividual<R>, R>comparing(SpeciesIndividual::fitness).reversed()));
-		species.forEach(Species::age);
+		this.species.forEach(Species::age);
 		removeStaleSpecies();
-		species.forEach(Species::adjustFitness);
-		var min = species.stream().mapToDouble(Species::averageFitness).min();
+		this.species.forEach(Species::adjustFitness);
+		var min = this.species.stream().mapToDouble(Species::averageFitness).min();
 		if(min.isPresent() && min.getAsDouble() <= 0)
 		{
-			for(var species : species)
+			for(var species : this.species)
 			{
 				species.averageFitness(species.averageFitness() - min.getAsDouble()
-					+ speciationParameters.deadbeatEvaluation());
+					+ this.speciationParameters.deadbeatEvaluation());
 			}
 		}
 		return evals.stream().max(Comparator.comparing(Evaluation::result)).orElse(null);
@@ -118,15 +118,17 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	
 	public void removeStaleSpecies()
 	{
-		species
+		this.species
 			.sort(Comparator.<Species<T, R>, Double>comparing(Species::averageFitness).reversed());
 		var stagnantPopulation = true;
-		for(var species : species)
+		for(var species : this.species)
 		{
-			if(species.staleness() > speciationParameters.staleGenerationsAllowed())
+			if(species.staleness() > this.speciationParameters.staleGenerationsAllowed())
 			{
 				if(stagnantPopulation)
+				{
 					break;
+				}
 				species.perish();
 			}
 			stagnantPopulation = false;
@@ -134,9 +136,9 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		if(stagnantPopulation)
 		{
 			var index = 0;
-			for(var species : species)
+			for(var species : this.species)
 			{
-				if(index < speciationParameters.preservedSpecies())
+				if(index < this.speciationParameters.preservedSpecies())
 				{
 					species.revive(); // fountain of youth? revival herb?
 				}
@@ -147,7 +149,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 				index++;
 			}
 		}
-		species.removeIf(Species::perished);
+		this.species.removeIf(Species::perished);
 	}
 	
 	/**
@@ -155,27 +157,27 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	 */
 	public Stream<T> repopulate(UnaryOperator<T> mutations)
 	{
-		if(species.size() == 0)
+		if(this.species.size() == 0)
 		{
 			System.out.println("Hard reset!");
-			this.updateSpecies(Stream.generate(supplier).limit(this.size));
+			this.updateSpecies(Stream.generate(this.supplier).limit(this.size));
 		}
-		var totalAverageFitness = species.stream().mapToDouble(Species::averageFitness).sum();
-		var slotsRemaining = size;
-		for(var species : species)
+		var totalAverageFitness = this.species.stream().mapToDouble(Species::averageFitness).sum();
+		var slotsRemaining = this.size;
+		for(var species : this.species)
 		{
-			species.capacity((int) (size * (species.averageFitness() / totalAverageFitness)));
+			species.capacity((int) (this.size * (species.averageFitness() / totalAverageFitness)));
 			slotsRemaining -= species.capacity();
 		}
 		// we'll be generous with the remaining slots, logarithmically
 		while(slotsRemaining > 0)
 		{
-			var lottery = slotsRemaining - (slotsRemaining / 2);
+			var lottery = slotsRemaining - slotsRemaining / 2;
 			slotsRemaining -= lottery;
 			var species = this.species.get(random.nextInt(this.species.size()));
 			species.capacity(species.capacity() + lottery);
 		}
-		for(var species : species)
+		for(var species : this.species)
 		{
 			if(species.capacity() == 0)
 			{
@@ -184,18 +186,18 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			else
 			{
 				// assumption necessary for this part
-				species.eliminate(speciationParameters.eliminationRate());
+				species.eliminate(this.speciationParameters.eliminationRate());
 			}
 		}
-		species.removeIf(Species::perished);
+		this.species.removeIf(Species::perished);
 		var ret = Stream.<T>builder();
-		for(var species : species)
+		for(var species : this.species)
 		{
 			var fitnessList = species.fitnessList();
 			var capacity = species.capacity();
 			for(var i = 0; i < capacity; i++)
 			{
-				ret.accept(selector.select(fitnessList));
+				ret.accept(this.selector.select(fitnessList));
 			}
 		}
 		return ret.build();
@@ -203,7 +205,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	
 	public static <T extends SpeciesIndividual<R>, R extends Number & Comparable<R>> Builder<T, R> builder()
 	{
-		return new Builder<T, R>();
+		return new Builder<>();
 	}
 	
 	public static class Builder<T extends SpeciesIndividual<R>, R extends Number & Comparable<R>>
@@ -243,7 +245,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		
 		public SpeciatedPopulation<T, R> build()
 		{
-			return new SpeciatedPopulation<>(size, generator, parameters, selector);
+			return new SpeciatedPopulation<>(this.size, this.generator, this.parameters, this.selector);
 		}
 	}
 }

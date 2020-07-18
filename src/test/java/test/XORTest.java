@@ -86,11 +86,11 @@ public class XORTest
 				{1, 1, 1}, {1},
 			};
 			var sse = 0d;
-			for(int i = 0; i < expected.length/2; i++)
+			for(var i = 0; i < expected.length / 2; i++)
 			{
 				var evaluation = network.evaluate(expected[i*2]);
 				var target = expected[i*2+1];
-				for(int j = 0; j < target.length; j++)
+				for(var j = 0; j < target.length; j++)
 				{
 					target[j] -= (evaluation[j]+1)/2.0; // calculate errors
 					target[j] *= target[j]; // square errors
@@ -100,7 +100,7 @@ public class XORTest
 			return (8-sse)*(8-sse);
 		});
 		// define crossover
-		CrossoverMethod<NeuralIndividual> crossover = NeuralIndividual::crossover;
+		var crossover = (CrossoverMethod<NeuralIndividual>) NeuralIndividual::crossover;
 		// define mutation(s)
 		var mutation = new Mutation<>(NeuralIndividual::mutateComprehensively);
 		// define selection
@@ -132,10 +132,10 @@ public class XORTest
 			.withParameters(speciationParameters)
 			.withSelector(selector)
 			.build();
-		
+
 		// track the best individual
 		var best = new Evaluation<>((NeuralIndividual)null, Double.MIN_VALUE);
-		int generations = 0;
+		var generations = 0;
 		do
 		{
 			++generations;
@@ -147,7 +147,9 @@ public class XORTest
 		while(!isVerified(best.individual()) && pop.individuals().count() > 0);
 		System.out.println("NEAT test completed in "+generations+" generations.");
 		if(pop.individuals().count() <= 0)
+		{
 			System.out.println("All individuals perished");
+		}
 		Assertions.assertTrue(pop.individuals().count() > 0);
 		var network = best.individual().genome().toNetwork(Neuron::new);
 		Assertions.assertTrue(network.evaluate(new double[] {0, 0, 0})[0] < 0);
@@ -159,7 +161,7 @@ public class XORTest
 		Assertions.assertTrue(network.evaluate(new double[] {1, 1, 0})[0] < 0);
 		Assertions.assertTrue(network.evaluate(new double[] {1, 1, 1})[0] > 0);
 	}
-	
+
 	public boolean isVerified(NeuralIndividual individual)
 	{
 		var network = individual.genome().toNetwork(Neuron::new);
