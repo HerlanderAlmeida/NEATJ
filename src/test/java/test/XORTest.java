@@ -36,6 +36,7 @@ public class XORTest
 			.withRecurrency(false)
 			.withRange(2)
 			.withStep(0.125)
+			.withFullConnectivity(false)
 			.build();
 		// initial individual parameters for each NeuralIndividual
 		var individualParameters = IndividualParameters.builder()
@@ -76,14 +77,14 @@ public class XORTest
 		{
 			var network = b.genome().toNetwork(Neuron::new);
 			var expected = new double[][] {
-				{0, 0, 0}, {0},
-				{0, 0, 1}, {1},
-				{0, 1, 0}, {1},
-				{0, 1, 1}, {0},
-				{1, 0, 0}, {1},
-				{1, 0, 1}, {0},
-				{1, 1, 0}, {0},
-				{1, 1, 1}, {1},
+					{ 0, 0, 0 }, { 0 },
+					{ 0, 0, 1 }, { 1 },
+					{ 0, 1, 0 }, { 1 },
+					{ 0, 1, 1 }, { 0 },
+					{ 1, 0, 0 }, { 1 },
+					{ 1, 0, 1 }, { 0 },
+					{ 1, 1, 0 }, { 0 },
+					{ 1, 1, 1 }, { 1 },
 			};
 			var sse = 0d;
 			for(var i = 0; i < expected.length / 2; i++)
@@ -97,7 +98,7 @@ public class XORTest
 					sse += target[j];
 				}
 			}
-			return (8-sse)*(8-sse);
+			return (8 - sse) * (8 - sse);
 		});
 		// define crossover
 		var crossover = (CrossoverMethod<NeuralIndividual>) NeuralIndividual::crossover;
@@ -152,26 +153,26 @@ public class XORTest
 		}
 		Assertions.assertTrue(pop.individuals().count() > 0);
 		var network = best.individual().genome().toNetwork(Neuron::new);
-		Assertions.assertTrue(network.evaluate(new double[] {0, 0, 0})[0] < 0);
-		Assertions.assertTrue(network.evaluate(new double[] {0, 0, 1})[0] > 0);
-		Assertions.assertTrue(network.evaluate(new double[] {0, 1, 0})[0] > 0);
-		Assertions.assertTrue(network.evaluate(new double[] {0, 1, 1})[0] < 0);
-		Assertions.assertTrue(network.evaluate(new double[] {1, 0, 0})[0] > 0);
-		Assertions.assertTrue(network.evaluate(new double[] {1, 0, 1})[0] < 0);
-		Assertions.assertTrue(network.evaluate(new double[] {1, 1, 0})[0] < 0);
-		Assertions.assertTrue(network.evaluate(new double[] {1, 1, 1})[0] > 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 0, 0, 0 })[0] < 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 0, 0, 1 })[0] > 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 0, 1, 0 })[0] > 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 0, 1, 1 })[0] < 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 1, 0, 0 })[0] > 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 1, 0, 1 })[0] < 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 1, 1, 0 })[0] < 0);
+		Assertions.assertTrue(network.evaluate(new double[]	{ 1, 1, 1 })[0] > 0);
 	}
 
 	public boolean isVerified(NeuralIndividual individual)
 	{
 		var network = individual.genome().toNetwork(Neuron::new);
-		return network.evaluate(new double[] {0, 0, 0})[0] < 0
-			&& network.evaluate(new double[] {0, 0, 1})[0] > 0
-			&& network.evaluate(new double[] {0, 1, 0})[0] > 0
-			&& network.evaluate(new double[] {0, 1, 1})[0] < 0
-			&& network.evaluate(new double[] {1, 0, 0})[0] > 0
-			&& network.evaluate(new double[] {1, 0, 1})[0] < 0
-			&& network.evaluate(new double[] {1, 1, 0})[0] < 0
-			&& network.evaluate(new double[] {1, 1, 1})[0] > 0;
+		return network.evaluate(new double[] { 0, 0, 0 })[0] < 0
+			&& network.evaluate(new double[] { 0, 0, 1 })[0] > 0
+			&& network.evaluate(new double[] { 0, 1, 0 })[0] > 0
+			&& network.evaluate(new double[] { 0, 1, 1 })[0] < 0
+			&& network.evaluate(new double[] { 1, 0, 0 })[0] > 0
+			&& network.evaluate(new double[] { 1, 0, 1 })[0] < 0
+			&& network.evaluate(new double[] { 1, 1, 0 })[0] < 0
+			&& network.evaluate(new double[] { 1, 1, 1 })[0] > 0;
 	}
 }

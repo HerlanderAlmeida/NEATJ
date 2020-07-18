@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class NeuralIndividual extends SpeciesIndividual<Double>
 {
-	private static final Random RNG = new Random();
+	private static final Random random = new Random();
 	private NeuralGenome genome;
 	private InnovationTracker tracker;
 	// per-individual parameter values
@@ -148,8 +148,9 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		var evaluation2 = other.fitness;
 		var individualParameters = this.fitness > other.fitness ? this.individualParameters
 			: this.fitness < other.fitness ? other.individualParameters
-				: RNG.nextBoolean() ? this.individualParameters : other.individualParameters;
-		var child = new NeuralIndividual(this.tracker, this.genome.networkParameters(), individualParameters);
+				: random.nextBoolean() ? this.individualParameters : other.individualParameters;
+		var child = new NeuralIndividual(this.tracker, this.genome.networkParameters(),
+			individualParameters);
 		Collections.sort(genome1.genes(), Comparator.comparingInt(NeuralGene::marker));
 		Collections.sort(genome2.genes(), Comparator.comparingInt(NeuralGene::marker));
 		var iter1 = genome1.genes().iterator();
@@ -173,8 +174,8 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			}
 			else if(gene1.marker() == gene2.marker())
 			{
-				var next = RNG.nextBoolean() ? gene1 : gene2;
-				var enabled = RNG.nextBoolean() ? gene1.enabled() : gene2.enabled();
+				var next = random.nextBoolean() ? gene1 : gene2;
+				var enabled = random.nextBoolean() ? gene1.enabled() : gene2.enabled();
 				joint.add(next.withEnabled(enabled));
 				gene1 = iter1.hasNext() ? iter1.next() : null;
 				gene2 = iter2.hasNext() ? iter2.next() : null;
@@ -196,7 +197,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			exclusive2.add(iter2.next());
 		}
-		if((evaluation1 > evaluation2) || !(evaluation1 < evaluation2 || !RNG.nextBoolean()))
+		if(evaluation1 > evaluation2 || evaluation1 == evaluation2 && random.nextBoolean())
 		{
 			joint.addAll(exclusive1);
 		}
@@ -210,15 +211,15 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 
 	public NeuralIndividual mutateComprehensively()
 	{
-		this.individualParameters = this.individualParameters.mutateProbabilities(RNG);
+		this.individualParameters = this.individualParameters.mutateProbabilities(random);
 		for(var meta = this.individualParameters.metaMutationProbability(); meta > 0; meta--)
 		{
-			if(meta >= 1 || RNG.nextDouble() < meta)
+			if(meta >= 1 || random.nextDouble() < meta)
 			{
 				for(var chance = this.individualParameters
 					.weightMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateWeight();
 					}
@@ -226,7 +227,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.randomWeightMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateRandomWeight();
 					}
@@ -234,7 +235,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.linkMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateLink();
 					}
@@ -242,7 +243,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.biasLinkMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateBiasLink();
 					}
@@ -250,7 +251,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.sensorMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateSensor();
 					}
@@ -258,7 +259,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.neuronMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateNeuron();
 					}
@@ -266,7 +267,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.enableMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateEnable();
 					}
@@ -274,7 +275,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.disableMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateDisable();
 					}
@@ -282,7 +283,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				for(var chance = this.individualParameters
 					.destroyMutationProbability(); chance > 0; chance--)
 				{
-					if(chance >= 1 || RNG.nextDouble() < chance)
+					if(chance >= 1 || random.nextDouble() < chance)
 					{
 						mutateDestroy();
 					}
@@ -303,9 +304,9 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		var biases = this.genome.biases();
 		var unchanging = inputs + biases;
 		// always input, bias, or hidden
-		var first = RNG.nextInt(neurons - outputs);
+		var first = random.nextInt(neurons - outputs);
 		// always output or hidden
-		var second = RNG.nextInt(neurons - unchanging);
+		var second = random.nextInt(neurons - unchanging);
 		var inputEdge = inputs;
 		var outputEdge = inputs + outputs;
 		var biasEdge = inputs + outputs + biases;
@@ -361,11 +362,10 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			}
 		}
 		this.genome.genes()
-			.add(
-				new NeuralGene(first, second,
-					RNG.nextDouble() * this.genome.networkParameters().range() * 2
-						- this.genome.networkParameters().range(),
-					true, this.tracker.getMarker(first, second)));
+			.add(new NeuralGene(first, second,
+				random.nextDouble() * this.genome.networkParameters().range() * 2
+					- this.genome.networkParameters().range(),
+				true, this.tracker.getMarker(first, second)));
 		return this;// .9, try twice
 	}
 
@@ -414,9 +414,9 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		var biases = this.genome.biases();
 		var unchanging = inputs + biases;
 		// always bias
-		var first = RNG.nextInt(biases);
+		var first = random.nextInt(biases);
 		// always output or hidden
-		var second = RNG.nextInt(neurons - unchanging);
+		var second = random.nextInt(neurons - unchanging);
 		var inputEdge = inputs;
 		var outputEdge = inputs + outputs;
 		var biasEdge = inputs + outputs + biases;
@@ -453,11 +453,10 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			}
 		}
 		this.genome.genes()
-			.add(
-				new NeuralGene(first, second,
-					RNG.nextDouble() * this.genome.networkParameters().range() * 2
-						- this.genome.networkParameters().range(),
-					true, this.tracker.getMarker(first, second)));
+			.add(new NeuralGene(first, second,
+				random.nextDouble() * this.genome.networkParameters().range() * 2
+					- this.genome.networkParameters().range(),
+				true, this.tracker.getMarker(first, second)));
 		return this;// .4
 	}
 
@@ -467,9 +466,9 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		var inputs = this.genome.inputs();
 		var outputs = this.genome.outputs();
 		// always input, bias, or hidden
-		var first = RNG.nextInt(neurons - outputs);
+		var first = random.nextInt(neurons - outputs);
 		// always output
-		var second = RNG.nextInt(outputs);
+		var second = random.nextInt(outputs);
 		var inputEdge = inputs;
 		var outputEdge = inputs + outputs;
 		// network=[inputs|outputs|biases|hidden]
@@ -497,11 +496,10 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			}
 		}
 		this.genome.genes()
-			.add(
-				new NeuralGene(first, second,
-					RNG.nextDouble() * this.genome.networkParameters().range() * 2
-						- this.genome.networkParameters().range(),
-					true, this.tracker.getMarker(first, second)));
+			.add(new NeuralGene(first, second,
+				random.nextDouble() * this.genome.networkParameters().range() * 2
+					- this.genome.networkParameters().range(),
+				true, this.tracker.getMarker(first, second)));
 		return this; // .4
 	}
 
@@ -515,7 +513,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			var gene = genes.get(index);
 			genes.set(index, gene.withWeight(
-				gene.weight() + RNG.nextGaussian() * this.genome.networkParameters().step()));
+				gene.weight() + random.nextGaussian() * this.genome.networkParameters().step()));
 		}
 		return this;// 0.225
 	}
@@ -530,10 +528,11 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			return this;
 		}
-		var index = RNG.nextInt(genes.size());
+		var index = random.nextInt(genes.size());
 		var gene = genes.get(index);
-		genes.set(index, gene.withWeight(RNG.nextDouble() * this.genome.networkParameters().range() * 2
-			- this.genome.networkParameters().range()));
+		genes.set(index,
+			gene.withWeight(random.nextDouble() * this.genome.networkParameters().range() * 2
+				- this.genome.networkParameters().range()));
 		return this;// .025
 	}
 
@@ -547,7 +546,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			return this;
 		}
-		var index = RNG.nextInt(genes.size());
+		var index = random.nextInt(genes.size());
 		var gene = genes.get(index);
 		if(!gene.enabled())
 		{
@@ -606,7 +605,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			return this;
 		}
-		var flipping = pairs.get(RNG.nextInt(pairs.size()));
+		var flipping = pairs.get(random.nextInt(pairs.size()));
 		genes.set(flipping.index, flipping.gene.withEnabled(target));
 		return this;
 	}
@@ -631,7 +630,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			return this;
 		}
-		genes.remove((int) disabled.get(RNG.nextInt(disabled.size())));
+		genes.remove((int) disabled.get(random.nextInt(disabled.size())));
 		return this;
 	}
 
@@ -692,7 +691,13 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			{
 				throw new IllegalStateException("Individual parameters not set!");
 			}
-			return new NeuralIndividual(this.tracker, this.networkParameters, this.individualParameters);
+			var ret = new NeuralIndividual(this.tracker, this.networkParameters,
+				this.individualParameters);
+			if(this.networkParameters.fullyConnected())
+			{
+				ret.genome().becomeFullyConnected(this.tracker);
+			}
+			return ret;
 		}
 	}
 }

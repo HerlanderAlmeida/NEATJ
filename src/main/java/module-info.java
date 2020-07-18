@@ -14,7 +14,8 @@ open module avi
 	exports network;
 	exports network.connection;
 	exports network.neuron;
-	
+
 	requires org.junit.jupiter.api;
+	requires org.junit.platform.commons;
 	requires com.google.gson;
 }

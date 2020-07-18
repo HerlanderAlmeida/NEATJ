@@ -3,6 +3,7 @@ package neat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -12,6 +13,7 @@ import network.neuron.Neuron;
 
 public class NeuralGenome implements Genome
 {
+	private static final Random random = new Random();
 	private ArrayList<NeuralGene> genes;
 	private NetworkParameters networkParameters;
 	private int neurons;
@@ -87,11 +89,11 @@ public class NeuralGenome implements Genome
 			{
 				if(!map.containsKey(gene.from()))
 				{
-					map.put(gene.from(),network.addNeuron(supplier.get()));
+					map.put(gene.from(), network.addNeuron(supplier.get()));
 				}
 				if(!map.containsKey(gene.to()))
 				{
-					map.put(gene.to(),network.addNeuron(supplier.get()));
+					map.put(gene.to(), network.addNeuron(supplier.get()));
 				}
 				network.addConnection(map.get(gene.from()), map.get(gene.to()), gene.weight());
 			}
@@ -99,9 +101,29 @@ public class NeuralGenome implements Genome
 		return network;
 	}
 
+	public void becomeFullyConnected(InnovationTracker tracker)
+	{
+		var inputs = this.networkParameters.inputs();
+		var outputs = inputs + networkParameters().outputs();
+		for(var input = 0; input < inputs; input++)
+		{
+			for(var output = inputs; output < outputs; output++)
+			{
+				genes()
+					.add(
+						new NeuralGene(input, output,
+							random.nextDouble() * networkParameters().range() * 2
+								- networkParameters().range(),
+							true, tracker.getMarker(input, output)));
+			}
+		}
+	}
+
 	@Override
 	public String toString()
 	{
-		return String.format("NeuralGenome[genes=%s, inputs=%s, outputs=%s, biases=%s, neurons=%s, recurrent=%s]", this.genes, inputs(), outputs(), biases(), this.neurons, recurrent());
+		return String.format(
+			"NeuralGenome[genes=%s, inputs=%s, outputs=%s, biases=%s, neurons=%s, recurrent=%s]",
+			this.genes, inputs(), outputs(), biases(), this.neurons, recurrent());
 	}
 }
