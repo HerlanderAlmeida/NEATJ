@@ -205,7 +205,12 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			joint.addAll(exclusive2);
 		}
-		child.genome.neurons(Math.max(this.genome.neurons(), other.genome.neurons()));
+		var max = this.genome.inputs() + this.genome.outputs() + this.genome.biases();
+		for(var gene : joint)
+		{
+			max = Math.max(max, Math.max(gene.from(), gene.to()));
+		}
+		child.genome.neurons(max + 1);
 		return child;
 	}
 
@@ -354,18 +359,11 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				second = temp;
 			}
 		}
-		for(var gene : this.genome.genes())
+		if(this.genome.hasConnection(first, second))
 		{
-			if(gene.from() == first && gene.to() == second)
-			{
-				return this;
-			}
+			return this;
 		}
-		this.genome.genes()
-			.add(new NeuralGene(first, second,
-				random.nextDouble() * this.genome.networkParameters().range() * 2
-					- this.genome.networkParameters().range(),
-				true, this.tracker.getMarker(first, second)));
+		this.genome.addConnection(first, second, this.tracker);
 		return this;// .9, try twice
 	}
 
@@ -449,18 +447,11 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			throw new IllegalStateException(
 				"Unexpectly, input node selected as link destination: " + second);
 		}
-		for(var gene : this.genome.genes())
+		if(this.genome.hasConnection(first, second))
 		{
-			if(gene.from() == first && gene.to() == second)
-			{
-				return this;
-			}
+			return this;
 		}
-		this.genome.genes()
-			.add(new NeuralGene(first, second,
-				random.nextDouble() * this.genome.networkParameters().range() * 2
-					- this.genome.networkParameters().range(),
-				true, this.tracker.getMarker(first, second)));
+		this.genome.addConnection(first, second, this.tracker);
 		return this;// .4
 	}
 
@@ -492,18 +483,11 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			throw new IllegalStateException(
 				"Unexpectly, non-output node selected as link destination: " + second);
 		}
-		for(var gene : this.genome.genes())
+		if(this.genome.hasConnection(first, second))
 		{
-			if(gene.from() == first && gene.to() == second)
-			{
-				return this;
-			}
+			return this;
 		}
-		this.genome.genes()
-			.add(new NeuralGene(first, second,
-				random.nextDouble() * this.genome.networkParameters().range() * 2
-					- this.genome.networkParameters().range(),
-				true, this.tracker.getMarker(first, second)));
+		this.genome.addConnection(first, second, this.tracker);
 		return this; // .4
 	}
 
@@ -516,8 +500,10 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		for(var index = 0; index < genes.size(); index++)
 		{
 			var gene = genes.get(index);
-			genes.set(index, gene.withWeight(
-				gene.weight() + random.nextGaussian() * this.genome.networkParameters().step()));
+			genes.set(index,
+				gene.withWeight(
+					gene.weight() + random.nextDouble() * this.genome.networkParameters().step() * 2
+						- this.genome.networkParameters().step()));
 		}
 		return this;// 0.225
 	}
@@ -560,14 +546,13 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		genes.set(index, gene.withEnabled(false));
 		var neurons = this.genome.neurons();
 		this.genome.neurons(neurons + 1);
-
-		var firstEnd = new NeuralGene(gene.from(), neurons, 1, true,
-			this.tracker.getMarker(gene.from(), neurons));
-		var secondEnd = new NeuralGene(neurons, gene.to(), gene.weight(), true,
-			this.tracker.getMarker(neurons, gene.to()));
-		genes.add(firstEnd);
-		genes.add(secondEnd);
+		this.genome.addConnection(gene.from(), neurons, 1, this.tracker);
+		this.genome.addConnection(neurons, gene.to(), gene.weight(), this.tracker);
 		return this;// 0.5
+	}
+
+	private record Location(int index, NeuralGene gene)
+	{
 	}
 
 	/**
@@ -575,22 +560,6 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 	 */
 	public NeuralIndividual mutateEnable()
 	{
-		return mutateActivity(true);// .2
-	}
-
-	/**
-	 * Disables a link
-	 */
-	public NeuralIndividual mutateDisable()
-	{
-		return mutateActivity(false);// .4
-	}
-
-	private NeuralIndividual mutateActivity(boolean target)
-	{
-		record Location(int index, NeuralGene gene)
-		{
-		}
 		var pairs = new ArrayList<Location>();
 		var genes = this.genome.genes();
 		var iter = genes.iterator();
@@ -599,7 +568,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		while(iter.hasNext())
 		{
 			var gene = iter.next();
-			if(gene.enabled() != target)
+			if(!gene.enabled())
 			{
 				pairs.add(new Location(idx, gene));
 			}
@@ -610,11 +579,47 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			return this;
 		}
 		var flipping = pairs.get(random.nextInt(pairs.size()));
-		genes.set(flipping.index, flipping.gene.withEnabled(target));
+		genes.set(flipping.index, flipping.gene.withEnabled(true));
 		return this;
 	}
 
-	private NeuralIndividual mutateDestroy()
+	/**
+	 * Disables a link. We don't want to disable a link if there are no other
+	 * outputs taken from the node.
+	 */
+	public NeuralIndividual mutateDisable()
+	{
+		var pairs = new ArrayList<Location>();
+		var genes = this.genome.genes();
+		var iter = genes.iterator();
+		var idx = 0;
+		// Just in case the backing for genes() ever changes to LinkedList
+		while(iter.hasNext())
+		{
+			var gene = iter.next();
+			if(gene.enabled())
+			{
+				pairs.add(new Location(idx, gene));
+			}
+			idx++;
+		}
+		if(pairs.isEmpty())
+		{
+			return this;
+		}
+		var flipping = pairs.get(random.nextInt(pairs.size()));
+		for(var gene : genes)
+		{
+			if(gene.enabled() && gene.from() == flipping.gene.from() && gene.marker() != flipping.gene.marker())
+			{
+				genes.set(flipping.index, flipping.gene.withEnabled(false));
+				return this;
+			}
+		}
+		return this;
+	}
+
+	public NeuralIndividual mutateDestroy()
 	{
 		var disabled = new ArrayList<Integer>();
 		var genes = this.genome.genes();
@@ -624,7 +629,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		while(iter.hasNext())
 		{
 			var gene = iter.next();
-			if(!gene.enabled() || gene.enabled())
+			if(!gene.enabled())
 			{
 				disabled.add(idx);
 			}

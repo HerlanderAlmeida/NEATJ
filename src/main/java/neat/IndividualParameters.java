@@ -8,7 +8,7 @@ public record IndividualParameters(double metaMutationProbability, double weight
 	double neuronMutationProbability, double enableMutationProbability,
 	double disableMutationProbability, double destroyMutationProbability)
 {
-	
+
 	public IndividualParameters mutateProbabilities(Random random)
 	{
 		// mutate by 0.95, or 1/0.95
@@ -39,20 +39,20 @@ public record IndividualParameters(double metaMutationProbability, double weight
 			sensorMutationProbability, neuronMutationProbability, enableMutationProbability,
 			disableMutationProbability, destroyMutationProbability);
 	}
-	
+
 	public static Builder builder()
 	{
 		return new Builder();
 	}
-	
+
 	public IndividualParameters copy()
 	{
-		return new IndividualParameters(metaMutationProbability, weightMutationProbability,
-			randomWeightMutationProbability, linkMutationProbability, biasLinkMutationProbability,
-			sensorMutationProbability, neuronMutationProbability, enableMutationProbability,
-			disableMutationProbability, destroyMutationProbability);
+		return new IndividualParameters(this.metaMutationProbability, this.weightMutationProbability,
+			this.randomWeightMutationProbability, this.linkMutationProbability, this.biasLinkMutationProbability,
+			this.sensorMutationProbability, this.neuronMutationProbability, this.enableMutationProbability,
+			this.disableMutationProbability, this.destroyMutationProbability);
 	}
-	
+
 	public static class Builder
 	{
 		private double metaMutationProbability = 1;
@@ -65,77 +65,77 @@ public record IndividualParameters(double metaMutationProbability, double weight
 		private double enableMutationProbability = 0.4;
 		private double disableMutationProbability = 0.2;
 		private double destroyMutationProbability = 0.01;
-		
+
 		private Builder()
 		{
 		}
-		
+
 		public Builder withMetaMutationProbability(double metaMutationProbability)
 		{
 			this.metaMutationProbability = metaMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withWeightMutationProbability(double weightMutationProbability)
 		{
 			this.weightMutationProbability = weightMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withRandomWeightMutationProbability(double randomWeightMutationProbability)
 		{
 			this.randomWeightMutationProbability = randomWeightMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withLinkMutationProbability(double linkMutationProbability)
 		{
 			this.linkMutationProbability = linkMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withBiasLinkMutationProbability(double biasLinkMutationProbability)
 		{
 			this.biasLinkMutationProbability = biasLinkMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withSensorMutationProbability(double sensorMutationProbability)
 		{
 			this.sensorMutationProbability = sensorMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withNeuronMutationProbability(double neuronMutationProbability)
 		{
 			this.neuronMutationProbability = neuronMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withEnableMutationProbability(double enableMutationProbability)
 		{
 			this.enableMutationProbability = enableMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withDisableMutationProbability(double disableMutationProbability)
 		{
 			this.disableMutationProbability = disableMutationProbability;
 			return this;
 		}
-		
+
 		public Builder withDestroyMutationProbability(double destroyMutationProbability)
 		{
 			this.destroyMutationProbability = destroyMutationProbability;
 			return this;
 		}
-		
+
 		public IndividualParameters build()
 		{
-			return new IndividualParameters(metaMutationProbability, weightMutationProbability,
-				randomWeightMutationProbability, linkMutationProbability,
-				biasLinkMutationProbability, sensorMutationProbability, neuronMutationProbability,
-				enableMutationProbability, disableMutationProbability, destroyMutationProbability);
+			return new IndividualParameters(this.metaMutationProbability, this.weightMutationProbability,
+				this.randomWeightMutationProbability, this.linkMutationProbability,
+				this.biasLinkMutationProbability, this.sensorMutationProbability, this.neuronMutationProbability,
+				this.enableMutationProbability, this.disableMutationProbability, this.destroyMutationProbability);
 		}
 	}
 }

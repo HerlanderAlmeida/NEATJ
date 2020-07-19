@@ -19,65 +19,65 @@ public class Species<T extends SpeciesIndividual<R>, R extends Number & Comparab
 	private double averageFitness;
 	private int capacity;
 	private int staleness;
-	
+
 	public Species()
 	{
 		this.maxFitness = Double.MIN_VALUE;
 	}
-	
+
 	public Population<T> population()
 	{
 		return this.population;
 	}
-	
+
 	public void population(Population<T> population)
 	{
 		this.population = population;
 	}
-	
+
 	public int capacity()
 	{
 		return this.capacity;
 	}
-	
+
 	public void capacity(int capacity)
 	{
 		this.capacity = capacity;
 	}
-	
+
 	public T representative()
 	{
 		return this.representative;
 	}
-	
+
 	public void representative(T representative)
 	{
 		this.representative = representative;
 	}
-	
+
 	public void updateRepresentative()
 	{
-		if(population.size() > 0)
+		if(this.population.size() > 0)
 		{
-			representative = population.get(random.nextInt(population.size()));
+			this.representative = this.population.get(random.nextInt(this.population.size()));
 		}
 	}
-	
+
 	public void adjustFitness()
 	{
-		averageFitness = population.stream().map(SpeciesIndividual::fitness)
+		this.averageFitness = this.population.stream().map(SpeciesIndividual::fitness)
 			.mapToDouble(Number::doubleValue).sum();
-		population.forEach(indiv -> indiv.divideFitness(population.size()));
-		averageFitness = averageFitness / population.size();
+		this.population.forEach(indiv -> indiv.divideFitness(this.population.size()));
+		this.averageFitness = this.averageFitness / this.population.size();
 	}
-	
+
 	public void age()
 	{
-		var maxIndividual = population.stream()
+		var maxIndividual = this.population.stream()
 			.max(Comparator.comparing(SpeciesIndividual::fitness));
-		if(maxIndividual.isPresent() && maxIndividual.get().fitness().doubleValue() > maxFitness)
+		if(maxIndividual.isPresent() && maxIndividual.get().fitness().doubleValue() > this.maxFitness)
 		{
-			maxFitness = maxIndividual.get().fitness().doubleValue();
+			this.maxFitness = maxIndividual.get().fitness().doubleValue();
 			staleness(0);
 		}
 		else
@@ -85,59 +85,59 @@ public class Species<T extends SpeciesIndividual<R>, R extends Number & Comparab
 			staleness(staleness() + 1);
 		}
 	}
-	
+
 	public void revive()
 	{
 		staleness(0);
 	}
-	
+
 	/**
 	 * Assumption: species populations are sorted highest to lowest
 	 */
 	public void eliminate(double proportion)
 	{
-		var eliminating = (int) (proportion * population.size());
-		population.subList(population.size() - eliminating, population.size()).clear();
+		var eliminating = (int) (proportion * this.population.size());
+		this.population.subList(this.population.size() - eliminating, this.population.size()).clear();
 	}
-	
+
 	public List<Evaluation<T, R>> fitnessList()
 	{
-		return population.stream().map(indiv -> new Evaluation<>(indiv, indiv.fitness()))
+		return this.population.stream().map(indiv -> new Evaluation<>(indiv, indiv.fitness()))
 			.collect(Collectors.toUnmodifiableList());
 	}
-	
+
 	public int staleness()
 	{
-		return staleness;
+		return this.staleness;
 	}
-	
+
 	public void staleness(int staleness)
 	{
 		this.staleness = staleness;
 	}
-	
+
 	public double averageFitness()
 	{
-		return averageFitness;
+		return this.averageFitness;
 	}
-	
+
 	public void averageFitness(double averageFitness)
 	{
 		this.averageFitness = averageFitness;
 	}
-	
+
 	public boolean perished()
 	{
-		return population.isEmpty();
+		return this.population.isEmpty();
 	}
-	
+
 	public void perish()
 	{
-		population.clear();
+		this.population.clear();
 	}
-	
+
 	public Stream<T> stream()
 	{
-		return population.stream();
+		return this.population.stream();
 	}
 }

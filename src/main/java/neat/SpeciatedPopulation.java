@@ -23,7 +23,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	private Selector<T> selector;
 	private Supplier<T> supplier;
 	private int size;
-	
+
 	private SpeciatedPopulation(int n, Supplier<T> supplier, SpeciationParameters parameters,
 		Selector<T> selector)
 	{
@@ -33,7 +33,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		this.selector = selector;
 		this.updateSpecies(Stream.generate(supplier).limit(this.size = n));
 	}
-	
+
 	public void updateRepresentatives()
 	{
 		for(var species : this.species)
@@ -42,17 +42,17 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			species.perish();
 		}
 	}
-	
+
 	public Stream<T> individuals()
 	{
 		return stream().flatMap(Species::stream);
 	}
-	
+
 	public Stream<Species<T, R>> stream()
 	{
 		return this.species.stream();
 	}
-	
+
 	private void classifyIndividual(T t)
 	{
 		var matched = false;
@@ -75,7 +75,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			this.species.add(newSpecies);
 		}
 	}
-	
+
 	public void updateSpecies(Stream<T> ts)
 	{
 		updateRepresentatives();
@@ -94,7 +94,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 					- this.speciationParameters.differenceThresholdStep());
 		}
 	}
-	
+
 	public Evaluation<T, R> updateFitnesses(Stream<Evaluation<T, R>> ranked)
 	{
 		var evals = ranked.collect(Collectors.toList());
@@ -115,7 +115,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		return evals.stream().max(Comparator.comparing(Evaluation::result)).orElse(null);
 	}
-	
+
 	public void removeStaleSpecies()
 	{
 		this.species
@@ -151,7 +151,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		this.species.removeIf(Species::perished);
 	}
-	
+
 	/**
 	 * Assumption: species populations are sorted highest to lowest
 	 */
@@ -199,53 +199,59 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			{
 				ret.accept(this.selector.select(fitnessList));
 			}
+			/*
+			 * Reset must be per species rather than per generation, because
+			 * each species is treated as a unique sub-population
+			 */
+			this.selector.reset();
 		}
 		return ret.build();
 	}
-	
+
 	public static <T extends SpeciesIndividual<R>, R extends Number & Comparable<R>> Builder<T, R> builder()
 	{
 		return new Builder<>();
 	}
-	
+
 	public static class Builder<T extends SpeciesIndividual<R>, R extends Number & Comparable<R>>
 	{
 		private int size;
 		private Supplier<T> generator;
 		private SpeciationParameters parameters;
 		private Selector<T> selector;
-		
+
 		private Builder()
 		{
 		}
-		
+
 		public Builder<T, R> withSize(int size)
 		{
 			this.size = size;
 			return this;
 		}
-		
+
 		public Builder<T, R> withGenerator(Supplier<T> generator)
 		{
 			this.generator = generator;
 			return this;
 		}
-		
+
 		public Builder<T, R> withParameters(SpeciationParameters parameters)
 		{
 			this.parameters = parameters;
 			return this;
 		}
-		
+
 		public Builder<T, R> withSelector(Selector<T> selector)
 		{
 			this.selector = selector;
 			return this;
 		}
-		
+
 		public SpeciatedPopulation<T, R> build()
 		{
-			return new SpeciatedPopulation<>(this.size, this.generator, this.parameters, this.selector);
+			return new SpeciatedPopulation<>(this.size, this.generator, this.parameters,
+				this.selector);
 		}
 	}
 }

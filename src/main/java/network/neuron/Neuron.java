@@ -27,14 +27,14 @@ public class Neuron
 	
 	public Neuron(Iterable<Connection> inputs)
 	{
-		this.inputs = new LinkedList<Connection>();
+		this.inputs = new LinkedList<>();
 		inputs.forEach(this.inputs::add);
 	}
 	
 	private boolean swapFlag(boolean new_)
 	{
-		var old = flagged;
-		flagged = new_;
+		var old = this.flagged;
+		this.flagged = new_;
 		return old;
 	}
 	
@@ -86,17 +86,17 @@ public class Neuron
 	
 	public void addConnection(Connection input)
 	{
-		inputs.add(input);
+		this.inputs.add(input);
 	}
 	
 	public Collection<Connection> allInputs()
 	{
-		return inputs;
+		return this.inputs;
 	}
 	
 	public Collection<Connection> inputs()
 	{
-		return inputs;
+		return this.inputs;
 	}
 	
 	public void value(double value)
@@ -106,7 +106,7 @@ public class Neuron
 	
 	public double value()
 	{
-		return value;
+		return this.value;
 	}
 	
 	public void type(Type type)
@@ -121,13 +121,13 @@ public class Neuron
 	
 	public void update()
 	{
-		value = 0;
-		for(var c : inputs)
+		this.value = 0;
+		for(var c : this.inputs)
 		{
-			value += c.getValue();
+			this.value += c.getValue();
 		}
 		// apply sigmoid function or other things
-		value = sigmoid(value);
+		this.value = sigmoid(this.value);
 	}
 	
 	private double sigmoid(double x)
@@ -137,7 +137,7 @@ public class Neuron
 	
 	public boolean isFlagged()
 	{
-		return flagged;
+		return this.flagged;
 	}
 	
 	public boolean unflag()
@@ -152,12 +152,14 @@ public class Neuron
 	
 	public boolean flipFlag()
 	{
-		return swapFlag(!flagged);
+		return swapFlag(!this.flagged);
 	}
 	
+	@Override
 	public String toString()
 	{
-		return String.format("Neuron[inputs=%s, value=%s, flagged=%s]", inputs, value, flagged);
+		return String.format("Neuron[inputs=%s, value=%s, flagged=%s]", this.inputs, this.value,
+			this.flagged);
 	}
 	
 	public enum Type

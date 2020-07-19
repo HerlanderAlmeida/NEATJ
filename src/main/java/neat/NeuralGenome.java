@@ -32,6 +32,18 @@ public class NeuralGenome implements Genome
 		this.neurons = inputs() + outputs() + biases();
 	}
 
+	public boolean hasConnection(int from, int to)
+	{
+		for(var gene : this.genes)
+		{
+			if(gene.from() == from && gene.to() == to)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public List<NeuralGene> genes()
 	{
 		return this.genes;
@@ -105,18 +117,38 @@ public class NeuralGenome implements Genome
 	{
 		var inputs = this.networkParameters.inputs();
 		var outputs = inputs + networkParameters().outputs();
+		var biases = outputs + networkParameters().biases();
 		for(var input = 0; input < inputs; input++)
 		{
 			for(var output = inputs; output < outputs; output++)
 			{
-				genes()
-					.add(
-						new NeuralGene(input, output,
-							random.nextDouble() * networkParameters().range() * 2
-								- networkParameters().range(),
-							true, tracker.getMarker(input, output)));
+				addConnection(input, output, tracker);
 			}
 		}
+		for(int input = outputs; input < biases; input++)
+		{
+			for(var output = inputs; output < outputs; output++)
+			{
+				addConnection(input, output, tracker);
+			}
+		}
+	}
+
+	public void addConnection(int from, int to, InnovationTracker tracker)
+	{
+		addConnection(from, to, random.nextDouble() * this.networkParameters.range() * 2
+			- this.networkParameters.range(), tracker);
+	}
+
+	public void addConnection(int from, int to, double weight, InnovationTracker tracker)
+	{
+		addConnection(from, to, weight, true, tracker);
+	}
+
+	public void addConnection(int from, int to, double weight, boolean enabled,
+		InnovationTracker tracker)
+	{
+		this.genes.add(new NeuralGene(from, to, weight, enabled, tracker.getMarker(from, to)));
 	}
 
 	@Override

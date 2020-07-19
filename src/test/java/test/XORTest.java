@@ -12,8 +12,6 @@ import genetic.evaluate.Evaluator;
 import genetic.mutation.Mutation;
 import genetic.selection.Ranker;
 import genetic.selection.Selector;
-import genetic.selection.method.ElitistSelection;
-import genetic.selection.method.RandomSelection;
 import genetic.selection.method.RankSelection;
 import genetic.selection.method.RouletteSelection;
 import neat.IndividualParameters;
@@ -35,7 +33,7 @@ public class XORTest
 			.withBiases(1)
 			.withRecurrency(false)
 			.withRange(2)
-			.withStep(0.125)
+			.withStep(0.05)
 			.withFullConnectivity(false)
 			.build();
 		// initial individual parameters for each NeuralIndividual
@@ -63,9 +61,9 @@ public class XORTest
 			.withEliminationRate(0.8)
 			.withStaleGenerationsAllowed(15)
 			.withDeadbeatEvaluation(0)
-			.withPreservedSpecies(2)
+			.withPreservedSpecies(1)
 			.build();
-		// tracker innovations
+		// define tracker for innovations
 		var tracker = new InnovationTracker();
 		// define parameters for individuals
 		var builder = NeuralIndividual.builder()
@@ -75,7 +73,7 @@ public class XORTest
 		// define evaluator
 		var eval = Evaluator.<NeuralIndividual, Double>of(b ->
 		{
-			var network = b.genome().toNetwork(Neuron::new);
+			var network = b.genome().toNetwork(Neuron::newHidden);
 			var expected = new double[][] {
 					{ 0, 0, 0 }, { 0 },
 					{ 0, 0, 1 }, { 1 },
@@ -98,31 +96,21 @@ public class XORTest
 					sse += target[j];
 				}
 			}
-			return (8 - sse) * (8 - sse);
+			return 8 - sse;
 		});
 		// define crossover
 		var crossover = (CrossoverMethod<NeuralIndividual>) NeuralIndividual::crossover;
 		// define mutation(s)
 		var mutation = new Mutation<>(NeuralIndividual::mutateComprehensively);
 		// define selection
-		var selector = Selector.<NeuralIndividual>selectingBy(new ElitistSelection<>(1),
-			Selector.<NeuralIndividual>selectingBy(
-				new CrossoverSelection<NeuralIndividual>(6)
-					.withSelectionMethod(new RandomSelection<>())
-					.withCrossoverMethod(crossover)
-					.withCrossoverProbability(speciationParameters.crossoverProbability())
-					.withPostMutations(mutation::apply),
-				new CrossoverSelection<NeuralIndividual>(1)
-					.withSelectionMethod(new RouletteSelection<>())
-					.withCrossoverMethod(crossover)
-					.withCrossoverProbability(speciationParameters.crossoverProbability())
-					.withPostMutations(mutation::apply),
-				new CrossoverSelection<NeuralIndividual>(1)
-					.withSelectionMethod(new RankSelection<>())
+		var selector = Selector.<NeuralIndividual>selectingBy(
+				new CrossoverSelection<NeuralIndividual>()
+					.withFirstSelector(new RouletteSelection<>())
+					.withSecondSelector(new RankSelection<>())
 					.withCrossoverMethod(crossover)
 					.withCrossoverProbability(speciationParameters.crossoverProbability())
 					.withPostMutations(mutation::apply)
-			));
+			);
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
@@ -142,19 +130,18 @@ public class XORTest
 			++generations;
 			tracker.reset();
 			var top = pop.updateFitnesses(ranker.rank(eval.evaluate(pop.individuals())));
+			//*
 			System.out.println("Generation " + generations + ", Size: "
-				+ top.individual().genome().genes().size() + ", best fitness: " + top.result());
+				+ top.individual().genome().genes().size() + ", Neurons: "
+				+ top.individual().genome().neurons() + ", best fitness: " + top.result());//*/
 			best = top == null || top.result() < best.result() ? best : top;
 			pop.updateSpecies(pop.repopulate(mutation::apply));
 		}
-		while(!isVerified(best.individual()) && pop.individuals().count() > 0);
+		while(!isVerified(best.individual()) && pop.individuals().count() > 0 && generations < 1000);
 		System.out.println("NEAT test completed in "+generations+" generations.");
-		if(pop.individuals().count() <= 0)
-		{
-			System.out.println("All individuals perished");
-		}
-		Assertions.assertTrue(pop.individuals().count() > 0);
-		var network = best.individual().genome().toNetwork(Neuron::new);
+		Assertions.assertFalse(generations == 1000, "Failed to converge in 1000 generations");
+		Assertions.assertTrue(pop.individuals().count() > 0, "All individuals perished");
+		var network = best.individual().genome().toNetwork(Neuron::newHidden);
 		Assertions.assertTrue(network.evaluate(new double[]	{ 0, 0, 0 })[0] < 0);
 		Assertions.assertTrue(network.evaluate(new double[]	{ 0, 0, 1 })[0] > 0);
 		Assertions.assertTrue(network.evaluate(new double[]	{ 0, 1, 0 })[0] > 0);
@@ -167,7 +154,7 @@ public class XORTest
 
 	public boolean isVerified(NeuralIndividual individual)
 	{
-		var network = individual.genome().toNetwork(Neuron::new);
+		var network = individual.genome().toNetwork(Neuron::newHidden);
 		return network.evaluate(new double[] { 0, 0, 0 })[0] < 0
 			&& network.evaluate(new double[] { 0, 0, 1 })[0] > 0
 			&& network.evaluate(new double[] { 0, 1, 0 })[0] > 0

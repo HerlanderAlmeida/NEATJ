@@ -13,21 +13,21 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 	protected SelectionMethod<T> secondSelector;
 	protected BinaryOperator<T> crossover;
 	protected double crossoverProbability = 1;
-	
+
 	public CrossoverSelection()
 	{
 	}
-	
+
 	public CrossoverSelection(int iterations)
 	{
 		super(iterations);
 	}
-	
+
 	public CrossoverSelection<T> withSelectionMethod(SelectionMethod<T> method)
 	{
 		return this.withFirstSelector(method).withSecondSelector(method);
 	}
-	
+
 	public CrossoverSelection<T> withFirstSelector(SelectionMethod<T> method)
 	{
 		this.firstSelector = method;
@@ -39,33 +39,33 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 		this.secondSelector = method;
 		return this;
 	}
-	
+
 	public CrossoverSelection<T> withCrossoverMethod(CrossoverMethod<T> crossover)
 	{
 		this.crossover = crossover;
 		return this;
 	}
-	
+
 	public CrossoverSelection<T> withCrossoverProbability(double crossoverProbability)
 	{
 		this.crossoverProbability = crossoverProbability;
 		return this;
 	}
-	
+
 	@Override
 	public void reset()
 	{
 		super.reset();
-		firstSelector.reset();
-		secondSelector.reset();
+		this.firstSelector.reset();
+		this.secondSelector.reset();
 	}
-	
+
 	@Override
 	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{
-		var first = firstSelector.select(ranked);
-		var second = secondSelector.select(ranked);
-		if(random.nextDouble() < crossoverProbability)
+		var first = this.firstSelector.select(ranked);
+		var second = this.secondSelector.select(ranked);
+		if(random.nextDouble() < this.crossoverProbability)
 		{
 			return this.crossover.apply(first, second);
 		}

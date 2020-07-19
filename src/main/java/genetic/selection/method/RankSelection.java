@@ -13,12 +13,12 @@ public class RankSelection<T extends Individual> extends RouletteSelection<T>
 	{
 		super();
 	}
-	
+
 	public RankSelection(int iterations)
 	{
 		super(iterations);
 	}
-	
+
 	@Override
 	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{

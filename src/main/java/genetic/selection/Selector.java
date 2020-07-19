@@ -13,7 +13,7 @@ public class Selector<T extends Individual> extends SelectionMethod<T>
 {
 	private Queue<SelectionMethod<T>> methods;
 	private Queue<SelectionMethod<T>> complete = new ArrayDeque<>();
-	
+
 	/**
 	 * @return A {@link Selector} with the given {@link SelectionMethod SelectionMethod(s)}
 	 */
@@ -22,27 +22,28 @@ public class Selector<T extends Individual> extends SelectionMethod<T>
 	{
 		return new Selector<S>().withSelectionMethods(methods);
 	}
-	
+
 	private Selector()
 	{
 	}
-	
+
 	@SuppressWarnings( "unchecked" )
 	private Selector<T> withSelectionMethods(SelectionMethod<T>... methods)
 	{
 		this.methods = new ArrayDeque<>(List.of(methods));
 		return this;
 	}
-	
+
+	@Override
 	public void reset()
 	{
-		while(!methods.isEmpty())
+		while(!this.methods.isEmpty())
 		{
-			complete.add(methods.poll());
+			this.complete.add(this.methods.poll());
 		}
-		methods.addAll(complete);
-		complete.clear();
-		methods.forEach(SelectionMethod::reset);
+		this.methods.addAll(this.complete);
+		this.complete.clear();
+		this.methods.forEach(SelectionMethod::reset);
 	}
 
 	/**
@@ -50,17 +51,18 @@ public class Selector<T extends Individual> extends SelectionMethod<T>
 	 * @param ranked A list of evaluated individuals, sorted in descending order of evaluation
 	 * @return A single individual, selected according to the current selection method
 	 */
+	@Override
 	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{
-		var selector = methods.peek();
+		var selector = this.methods.peek();
 		while(selector.finished())
 		{
-			complete.add(methods.poll());
-			selector = methods.peek();
+			this.complete.add(this.methods.poll());
+			selector = this.methods.peek();
 			if(selector == null)
 			{
 				reset();
-				selector = methods.peek();
+				selector = this.methods.peek();
 			}
 		}
 		return selector.select(new ArrayList<>(ranked));
