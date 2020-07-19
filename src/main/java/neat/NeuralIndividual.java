@@ -413,6 +413,10 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		var outputs = this.genome.outputs();
 		var biases = this.genome.biases();
 		var unchanging = inputs + biases;
+		if(biases == 0)
+		{
+			return this;
+		}
 		// always bias
 		var first = random.nextInt(biases);
 		// always output or hidden

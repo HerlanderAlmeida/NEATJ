@@ -89,11 +89,11 @@ public class XORTest
 			var sse = 0d;
 			for(var i = 0; i < expected.length / 2; i++)
 			{
-				var evaluation = network.evaluate(expected[i*2]);
-				var target = expected[i*2+1];
+				var evaluation = network.evaluate(expected[i * 2]);
+				var target = expected[i * 2 + 1];
 				for(var j = 0; j < target.length; j++)
 				{
-					target[j] -= (evaluation[j]+1)/2.0; // calculate errors
+					target[j] -= (evaluation[j] + 1) / 2.0; // calculate errors
 					target[j] *= target[j]; // square errors
 					sse += target[j];
 				}
@@ -135,13 +135,15 @@ public class XORTest
 			.build();
 
 		// track the best individual
-		var best = new Evaluation<>((NeuralIndividual)null, Double.MIN_VALUE);
+		var best = new Evaluation<>((NeuralIndividual)null, Double.NEGATIVE_INFINITY);
 		var generations = 0;
 		do
 		{
 			++generations;
 			tracker.reset();
 			var top = pop.updateFitnesses(ranker.rank(eval.evaluate(pop.individuals())));
+			System.out.println("Generation " + generations + ", Size: "
+				+ top.individual().genome().genes().size() + ", best fitness: " + top.result());
 			best = top == null || top.result() < best.result() ? best : top;
 			pop.updateSpecies(pop.repopulate(mutation::apply));
 		}
