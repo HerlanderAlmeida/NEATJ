@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -155,7 +154,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	/**
 	 * Assumption: species populations are sorted highest to lowest
 	 */
-	public Stream<T> repopulate(UnaryOperator<T> mutations)
+	public Stream<T> repopulate()
 	{
 		if(this.species.size() == 0)
 		{

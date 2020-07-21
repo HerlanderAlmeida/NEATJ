@@ -5,7 +5,7 @@ package neat;
  *            Whether the network starts fully connected or not
  */
 public record NetworkParameters(int inputs, int outputs, int biases, boolean recurrent,
-	double range, double step, boolean fullyConnected)
+	double range, double step, boolean fullyConnected, boolean arbitrarilyConnected)
 {
 
 	public static Builder builder()
@@ -21,6 +21,7 @@ public record NetworkParameters(int inputs, int outputs, int biases, boolean rec
 		private double range = 2;
 		private double step = 0.01;
 		private boolean fullyConnected = false;
+		private boolean arbitrarilyConnected = false;
 
 		private Builder()
 		{
@@ -68,10 +69,16 @@ public record NetworkParameters(int inputs, int outputs, int biases, boolean rec
 			return this;
 		}
 
+		public Builder withArbitraryConnectivity(boolean arbitrarilyConnected)
+		{
+			this.arbitrarilyConnected = arbitrarilyConnected;
+			return this;
+		}
+
 		public NetworkParameters build()
 		{
 			return new NetworkParameters(this.inputs, this.outputs, this.biases, this.recurrent,
-				this.range, this.step, this.fullyConnected);
+				this.range, this.step, this.fullyConnected, this.arbitrarilyConnected);
 		}
 	}
 }

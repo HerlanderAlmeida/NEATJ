@@ -76,6 +76,9 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		return this.individualParameters;
 	}
 
+	/**
+	 * Computes genomic distance between two NeuralIndividuals
+	 */
 	@Override
 	public Double difference(SpeciesIndividual<Double> di, SpeciationParameters parameters)
 	{
@@ -150,7 +153,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			: this.fitness < other.fitness ? other.individualParameters
 				: random.nextBoolean() ? this.individualParameters : other.individualParameters;
 		var child = new NeuralIndividual(this.tracker, this.genome.networkParameters(),
-			individualParameters);
+			individualParameters.copy());
 		Collections.sort(genome1.genes(), Comparator.comparingInt(NeuralGene::marker));
 		Collections.sort(genome2.genes(), Comparator.comparingInt(NeuralGene::marker));
 		var iter1 = genome1.genes().iterator();
@@ -348,6 +351,15 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			return this;
 		}
+		/*
+		 * Putting this check first can help mitigate the slow recurrent check.
+		 * It's far more likely to hit if the network gets dense, which is
+		 * exactly when checking recurrency is slow.
+		 */
+		if(this.genome.hasConnection(first, second))
+		{
+			return this;
+		}
 		if(!this.genome.recurrent() && !isInput.test(first) && !isBias.test(first)
 			&& !isOutput.test(second))
 		{
@@ -358,10 +370,6 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				first = second;
 				second = temp;
 			}
-		}
-		if(this.genome.hasConnection(first, second))
-		{
-			return this;
 		}
 		this.genome.addConnection(first, second, this.tracker);
 		return this;// .9, try twice
@@ -702,7 +710,8 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			}
 			var ret = new NeuralIndividual(this.tracker, this.networkParameters,
 				this.individualParameters);
-			if(this.networkParameters.fullyConnected())
+			if(this.networkParameters.fullyConnected()
+				|| this.networkParameters.arbitrarilyConnected() && random.nextBoolean())
 			{
 				ret.genome().becomeFullyConnected(this.tracker);
 			}

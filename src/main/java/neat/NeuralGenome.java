@@ -125,7 +125,7 @@ public class NeuralGenome implements Genome
 				addConnection(input, output, tracker);
 			}
 		}
-		for(int input = outputs; input < biases; input++)
+		for(var input = outputs; input < biases; input++)
 		{
 			for(var output = inputs; output < outputs; output++)
 			{

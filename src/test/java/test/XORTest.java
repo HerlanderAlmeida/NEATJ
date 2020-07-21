@@ -12,6 +12,7 @@ import genetic.evaluate.Evaluator;
 import genetic.mutation.Mutation;
 import genetic.selection.Ranker;
 import genetic.selection.Selector;
+import genetic.selection.method.ElitistSelection;
 import genetic.selection.method.RankSelection;
 import genetic.selection.method.RouletteSelection;
 import neat.IndividualParameters;
@@ -35,6 +36,7 @@ public class XORTest
 			.withRange(2)
 			.withStep(0.05)
 			.withFullConnectivity(false)
+			.withArbitraryConnectivity(false)
 			.build();
 		// initial individual parameters for each NeuralIndividual
 		var individualParameters = IndividualParameters.builder()
@@ -57,7 +59,7 @@ public class XORTest
 			.withDesiredSpecies(15)
 			.withDifferenceThreshold(1.4)
 			.withDifferenceThresholdStep(0.05)
-			.withCrossoverProbability(0.75)
+			.withCrossoverProbability(0.5)
 			.withEliminationRate(0.8)
 			.withStaleGenerationsAllowed(15)
 			.withDeadbeatEvaluation(0)
@@ -101,16 +103,24 @@ public class XORTest
 		// define crossover
 		var crossover = (CrossoverMethod<NeuralIndividual>) NeuralIndividual::crossover;
 		// define mutation(s)
-		var mutation = new Mutation<>(NeuralIndividual::mutateComprehensively);
+		// this mutation is likely to mutate generations more stably
+//		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
+		// this mutation can make smaller networks in less generations, but may
+		// also spiral network size out of control
+		var crossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively).withProbability(0.5);
+		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively);
 		// define selection
 		var selector = Selector.<NeuralIndividual>selectingBy(
-				new CrossoverSelection<NeuralIndividual>()
-					.withFirstSelector(new RouletteSelection<>())
-					.withSecondSelector(new RankSelection<>())
-					.withCrossoverMethod(crossover)
-					.withCrossoverProbability(speciationParameters.crossoverProbability())
-					.withPostMutations(mutation::apply)
-			);
+			new ElitistSelection<NeuralIndividual>(1)
+				.withPostMutations(crossedMutation::apply),
+			new CrossoverSelection<NeuralIndividual>()
+				.withFirstSelector(new RouletteSelection<>())
+				.withSecondSelector(new RankSelection<>())
+				.withCrossoverMethod(crossover)
+				.withCrossoverProbability(speciationParameters.crossoverProbability())
+				.withCrossedMutation(crossedMutation::apply)
+				.withUncrossedMutation(uncrossedMutation::apply)
+		);
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
@@ -135,7 +145,7 @@ public class XORTest
 				+ top.individual().genome().genes().size() + ", Neurons: "
 				+ top.individual().genome().neurons() + ", best fitness: " + top.result());//*/
 			best = top == null || top.result() < best.result() ? best : top;
-			pop.updateSpecies(pop.repopulate(mutation::apply));
+			pop.updateSpecies(pop.repopulate());
 		}
 		while(!isVerified(best.individual()) && pop.individuals().count() > 0 && generations < 1000);
 		System.out.println("NEAT test completed in "+generations+" generations.");

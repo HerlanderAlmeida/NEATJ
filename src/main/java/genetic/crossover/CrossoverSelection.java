@@ -2,6 +2,7 @@ package genetic.crossover;
 
 import java.util.List;
 import java.util.function.BinaryOperator;
+import java.util.function.UnaryOperator;
 
 import genetic.Individual;
 import genetic.evaluate.Evaluation;
@@ -13,6 +14,8 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 	protected SelectionMethod<T> secondSelector;
 	protected BinaryOperator<T> crossover;
 	protected double crossoverProbability = 1;
+	protected UnaryOperator<T> crossedMutation = t -> t;
+	protected UnaryOperator<T> uncrossedMutation = t -> t;
 
 	public CrossoverSelection()
 	{
@@ -52,6 +55,18 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 		return this;
 	}
 
+	public CrossoverSelection<T> withCrossedMutation(UnaryOperator<T> crossedMutation)
+	{
+		this.crossedMutation = crossedMutation;
+		return this;
+	}
+
+	public CrossoverSelection<T> withUncrossedMutation(UnaryOperator<T> uncrossedMutation)
+	{
+		this.uncrossedMutation = uncrossedMutation;
+		return this;
+	}
+
 	@Override
 	public void reset()
 	{
@@ -67,11 +82,12 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 		var second = this.secondSelector.select(ranked);
 		if(random.nextDouble() < this.crossoverProbability)
 		{
-			return this.crossover.apply(first, second);
+			return this.crossedMutation.apply(this.crossover.apply(first, second).copy().cast());
 		}
 		else
 		{
-			return random.nextBoolean() ? first : second;
+			return this.uncrossedMutation
+				.apply((random.nextBoolean() ? first : second).copy().cast());
 		}
 	}
 }

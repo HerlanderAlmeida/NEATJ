@@ -15,53 +15,55 @@ public abstract class SelectionMethod<T extends Individual>
 	private int iterations;
 	private int currentIteration;
 	protected Supplier<Boolean> checker;
-	private UnaryOperator<T> postMutations = (T t) -> t;
-	
+	private UnaryOperator<T> postMutations = t -> t;
+
 	public SelectionMethod()
 	{
 		this.withChecker(() -> false);
 	}
-	
+
 	public SelectionMethod(int iterations)
 	{
 		this.withIterations(iterations).withChecker(() -> this.iterations <= this.currentIteration);
 	}
-	
+
 	private SelectionMethod<T> withIterations(int iterations)
 	{
 		this.iterations = iterations;
 		return this;
 	}
-	
+
 	protected SelectionMethod<T> withChecker(Supplier<Boolean> checker)
 	{
 		this.checker = checker;
 		return this;
 	}
-	
+
 	public SelectionMethod<T> withPostMutations(UnaryOperator<T> postMutations)
 	{
 		this.postMutations = postMutations;
 		return this;
 	}
-	
+
 	protected void iterate()
 	{
 		if(finished())
+		{
 			throw new IllegalStateException("Maximum iterations for selection method reached!");
+		}
 		this.currentIteration++;
 	}
-	
+
 	public void reset()
 	{
 		this.currentIteration = 0;
 	}
-	
+
 	public boolean finished()
 	{
-		return checker.get();
+		return this.checker.get();
 	}
-	
+
 	/**
 	 * @param <R> Result of evaluations
 	 * @param ranked A list of evaluated individuals, sorted in descending order of evaluation
@@ -72,6 +74,6 @@ public abstract class SelectionMethod<T extends Individual>
 	public final <R extends Number & Comparable<R>> T select(List<Evaluation<T, R>> ranked)
 	{
 		iterate();
-		return postMutations.apply(selectIndividual(ranked).copy().cast());
+		return this.postMutations.apply(selectIndividual(ranked).copy().cast());
 	}
 }

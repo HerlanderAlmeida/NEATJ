@@ -40,18 +40,18 @@ public class NetworkTest
 		neurons[6] = new Neuron(List.of(new Connection(neurons[2], 1), new Connection(neurons[3], 2)));
 		neurons[7] = new Neuron(List.of(new Connection(neurons[4], -0.2),
 			new Connection(neurons[5], -0.2), new Connection(neurons[6], -2)));
-		for(int i = 3; i < neurons.length; i++)
+		for(var i = 3; i < neurons.length; i++)
 		{
 			neurons[i].update();
 		}
-		
+
 		Assertions.assertTrue(neurons[3].value() > 0.9);
 		Assertions.assertTrue(neurons[4].value() > 0.9);
 		Assertions.assertTrue(neurons[5].value() > 0.9);
 		Assertions.assertTrue(neurons[6].value() > 0.9);
 		Assertions.assertTrue(neurons[7].value() < -0.9);
 	}
-	
+
 //	@Test
 //	public void testNetworkFromFile()
 //	{

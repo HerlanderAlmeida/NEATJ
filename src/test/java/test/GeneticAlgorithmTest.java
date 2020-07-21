@@ -29,10 +29,8 @@ public class GeneticAlgorithmTest
 		// initialize population
 		var pop = new Population<>(20, BinaryIndividual::new);
 		// define evaluator
-		var eval = Evaluator.<BinaryIndividual, Integer>of(b ->
-		{
-			return Integer.bitCount(b.genome().integer());
-		});
+		var eval = Evaluator
+			.<BinaryIndividual, Integer>of(b -> Integer.bitCount(b.genome().integer()));
 		// define crossover
 		CrossoverMethod<BinaryIndividual> crossover = BinaryIndividual::crossover;
 		// define mutation(s)
@@ -52,15 +50,16 @@ public class GeneticAlgorithmTest
 			Comparator.comparing(Evaluation<BinaryIndividual, Integer>::result).reversed());
 		// track the best individual
 		var best = new Evaluation<>(new BinaryIndividual(), Integer.MIN_VALUE);
-		int generations = 0;
+		var generations = 0;
 		do
 		{
 			++generations;
 			selector.reset();
 			var ranked = ranker.rank(eval.evaluate(pop.stream())).collect(Collectors.toList());
 			// define repopulation
-			var repopulator = new RepopulatorImpl<BinaryIndividual>(BinaryIndividual::copy)
+			var repopulator = new RepopulatorImpl<>(BinaryIndividual::copy)
 			{
+				@Override
 				public BinaryIndividual apply(Population<BinaryIndividual> t)
 				{
 					return mutations.apply(selector.select(ranked).copy());
@@ -74,6 +73,6 @@ public class GeneticAlgorithmTest
 		while(generations < 1000 && best.result() < 30);
 		Assertions.assertEquals(30, best.result());
 		Assertions.assertTrue(generations < 1000);
-		System.out.println("Genetic algorithm test completed in "+generations+" generations.");
+		System.out.println("Genetic algorithm test completed in " + generations + " generations.");
 	}
 }
