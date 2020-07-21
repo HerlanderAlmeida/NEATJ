@@ -104,10 +104,10 @@ public class XORTest
 		var crossover = (CrossoverMethod<NeuralIndividual>) NeuralIndividual::crossover;
 		// define mutation(s)
 		// this mutation is likely to mutate generations more stably
-		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
+//		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
 		// this mutation can make smaller networks, but may
 		// also spiral network size out of control
-//		var crossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively).withProbability(0.1);
+		var crossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively).withProbability(0.1);
 		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively);
 		// define selection
 		var selector = Selector.<NeuralIndividual>selectingBy(

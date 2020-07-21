@@ -80,7 +80,7 @@ public class CrossoverSelection<T extends Individual> extends SelectionMethod<T>
 	{
 		var first = this.firstSelector.select(ranked);
 		var second = this.secondSelector.select(ranked);
-		if(random.nextDouble() < this.crossoverProbability)
+		if(random.nextDouble() < this.crossoverProbability && ranked.size() > 1)
 		{
 			return this.crossedMutation.apply(this.crossover.apply(first, second).copy().cast());
 		}

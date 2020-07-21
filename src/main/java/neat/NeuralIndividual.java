@@ -233,12 +233,32 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			joint.addAll(exclusive2);
 		}
-		var max = this.genome.inputs() + this.genome.outputs() + this.genome.biases();
+		// max known input/output/bias node
+		var maxIOB = this.genome.inputs() + this.genome.outputs() + this.genome.biases() - 1;
+		// scan all nodes, finding useless ones, and throw them away
+		var froms = new HashSet<Integer>();
+		var tos = new HashSet<Integer>();
 		for(var gene : joint)
 		{
-			max = Math.max(max, Math.max(gene.from(), gene.to()));
+			if(gene.enabled() && gene.from() > maxIOB)
+			{
+				froms.add(gene.from());
+			}
+			if(gene.enabled() && gene.to() > maxIOB)
+			{
+				tos.add(gene.to());
+			}
 		}
-		child.genome.neurons(max + 1);
+		froms.retainAll(tos);
+		joint.removeIf(gene -> gene.from() > maxIOB && !froms.contains(gene.from())
+			|| gene.to() > maxIOB && !froms.contains(gene.to()));
+		// max known input/output/bias/hidden node
+		var maxIOBH = maxIOB;
+		for(var gene : joint)
+		{
+			maxIOBH = Math.max(maxIOBH, Math.max(gene.from(), gene.to()));
+		}
+		child.genome.neurons(maxIOBH + 1);
 		return child;
 	}
 
@@ -643,7 +663,8 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		var flipping = pairs.get(random.nextInt(pairs.size()));
 		for(var gene : genes)
 		{
-			if(gene.enabled() && gene.from() == flipping.gene.from() && gene.marker() != flipping.gene.marker())
+			if(gene.enabled() && gene.from() == flipping.gene.from()
+				&& gene.marker() != flipping.gene.marker())
 			{
 				genes.set(flipping.index, flipping.gene.withEnabled(false));
 				return this;
