@@ -200,7 +200,32 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			exclusive2.add(iter2.next());
 		}
-		if(evaluation1 > evaluation2 || evaluation1 == evaluation2 && random.nextBoolean())
+		if(evaluation1 > evaluation2)
+		{
+			joint.addAll(exclusive1);
+		}
+		else if(evaluation2 > evaluation1)
+		{
+			joint.addAll(exclusive2);
+		}
+		else if(this.genome.recurrent())
+		{
+			for(var gene : exclusive1)
+			{
+				if(random.nextBoolean())
+				{
+					joint.add(gene);
+				}
+			}
+			for(var gene : exclusive2)
+			{
+				if(random.nextBoolean())
+				{
+					joint.add(gene);
+				}
+			}
+		}
+		else if(random.nextBoolean())
 		{
 			joint.addAll(exclusive1);
 		}
