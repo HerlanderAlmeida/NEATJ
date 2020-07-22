@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
@@ -94,7 +95,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 	}
 
-	public Evaluation<T, R> updateFitnesses(Stream<Evaluation<T, R>> ranked)
+	public Optional<Evaluation<T, R>> updateFitnesses(Stream<Evaluation<T, R>> ranked)
 	{
 		var evals = ranked.collect(Collectors.toList());
 		evals.forEach(eval -> eval.individual().fitness(eval.result()));
@@ -112,7 +113,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 					+ this.speciationParameters.deadbeatEvaluation());
 			}
 		}
-		return evals.stream().max(Comparator.comparing(Evaluation::result)).orElse(null);
+		return evals.stream().max(Comparator.comparing(Evaluation::result));
 	}
 
 	public void removeStaleSpecies()

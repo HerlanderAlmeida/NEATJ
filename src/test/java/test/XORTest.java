@@ -40,7 +40,8 @@ public class XORTest
 			.build();
 		// initial individual parameters for each NeuralIndividual
 		var individualParameters = IndividualParameters.builder()
-			.withMetaMutationProbability(1)
+			.withCloningMutationProbability(1.1)
+			.withCrossoverMutationProbability(0.1)
 			.withWeightMutationProbability(0.225)
 			.withRandomWeightMutationProbability(0.025)
 			.withLinkMutationProbability(2)
@@ -107,8 +108,8 @@ public class XORTest
 //		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
 		// this mutation can make smaller networks, but may
 		// also spiral network size out of control
-		var crossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively).withProbability(0.1);
-		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively);
+		var crossedMutation = new Mutation<>(NeuralIndividual::mutateCrossover);
+		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateCloning);
 		// define selection
 		var selector = Selector.<NeuralIndividual>selectingBy(
 			new ElitistSelection<NeuralIndividual>(1)
@@ -142,9 +143,9 @@ public class XORTest
 			var top = pop.updateFitnesses(ranker.rank(eval.evaluate(pop.individuals())));
 			/*
 			System.out.println("Generation " + generations + ", Size: "
-				+ top.individual().genome().genes().size() + ", Neurons: "
-				+ top.individual().genome().neurons() + ", best fitness: " + top.result());//*/
-			best = top == null || top.result() < best.result() ? best : top;
+				+ top.get().individual().genome().genes().size() + ", Neurons: "
+				+ top.get().individual().genome().neurons() + ", best fitness: " + top.get().result());//*/
+			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
 		}
 		while(!isVerified3Input(best.individual()) && pop.individuals().count() > 0 && generations < 1000);
@@ -193,7 +194,8 @@ public class XORTest
 			.build();
 		// initial individual parameters for each NeuralIndividual
 		var individualParameters = IndividualParameters.builder()
-			.withMetaMutationProbability(1)
+			.withCloningMutationProbability(1.1)
+			.withCrossoverMutationProbability(0.1)
 			.withWeightMutationProbability(0.225)
 			.withRandomWeightMutationProbability(0.025)
 			.withLinkMutationProbability(2)
@@ -256,8 +258,8 @@ public class XORTest
 //		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
 		// this mutation can make smaller networks, but may
 		// also spiral network size out of control
-		var crossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively).withProbability(0.1);
-		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateComprehensively);
+		var crossedMutation = new Mutation<>(NeuralIndividual::mutateCrossover);
+		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateCloning);
 		// define selection
 		var selector = Selector.<NeuralIndividual>selectingBy(
 			new ElitistSelection<NeuralIndividual>(1)
@@ -291,9 +293,9 @@ public class XORTest
 			var top = pop.updateFitnesses(ranker.rank(eval.evaluate(pop.individuals())));
 			/*
 			System.out.println("Generation " + generations + ", Size: "
-				+ top.individual().genome().genes().size() + ", Neurons: "
-				+ top.individual().genome().neurons() + ", best fitness: " + top.result());//*/
-			best = top == null || top.result() < best.result() ? best : top;
+				+ top.get().individual().genome().genes().size() + ", Neurons: "
+				+ top.get().individual().genome().neurons() + ", best fitness: " + top.get().result());//*/
+			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
 		}
 		while(!isVerified2Input(best.individual()) && pop.individuals().count() > 0 && generations < 100);

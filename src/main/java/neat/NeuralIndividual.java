@@ -7,7 +7,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class NeuralIndividual extends SpeciesIndividual<Double>
@@ -262,88 +264,54 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		return child;
 	}
 
+	public NeuralIndividual mutateCrossover()
+	{
+		applyMutation(this.individualParameters::crossoverMutationProbability,
+			NeuralIndividual::mutateComprehensively);
+		return this;
+	}
+
+	public NeuralIndividual mutateCloning()
+	{
+		applyMutation(this.individualParameters::cloningMutationProbability,
+			NeuralIndividual::mutateComprehensively);
+		return this;
+	}
+
 	public NeuralIndividual mutateComprehensively()
 	{
 		this.individualParameters = this.individualParameters.mutateProbabilities(random);
-		for(var meta = this.individualParameters.metaMutationProbability(); meta > 0; meta--)
+
+		applyMutation(this.individualParameters::weightMutationProbability,
+			NeuralIndividual::mutateWeight);
+		applyMutation(this.individualParameters::randomWeightMutationProbability,
+			NeuralIndividual::mutateWeight);
+		applyMutation(this.individualParameters::linkMutationProbability,
+			NeuralIndividual::mutateLink);
+		applyMutation(this.individualParameters::biasLinkMutationProbability,
+			NeuralIndividual::mutateBiasLink);
+		applyMutation(this.individualParameters::sensorMutationProbability,
+			NeuralIndividual::mutateSensor);
+		applyMutation(this.individualParameters::neuronMutationProbability,
+			NeuralIndividual::mutateNeuron);
+		applyMutation(this.individualParameters::enableMutationProbability,
+			NeuralIndividual::mutateEnable);
+		applyMutation(this.individualParameters::disableMutationProbability,
+			NeuralIndividual::mutateDisable);
+		applyMutation(this.individualParameters::destroyMutationProbability,
+			NeuralIndividual::mutateDestroy);
+		return this;
+	}
+
+	private void applyMutation(Supplier<Double> probability, Consumer<NeuralIndividual> mutation)
+	{
+		for(var chance = probability.get(); chance > 0; chance--)
 		{
-			if(meta >= 1 || random.nextDouble() < meta)
+			if(chance >= 1 || random.nextDouble() < chance)
 			{
-				for(var chance = this.individualParameters
-					.weightMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateWeight();
-					}
-				}
-				for(var chance = this.individualParameters
-					.randomWeightMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateRandomWeight();
-					}
-				}
-				for(var chance = this.individualParameters
-					.linkMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateLink();
-					}
-				}
-				for(var chance = this.individualParameters
-					.biasLinkMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateBiasLink();
-					}
-				}
-				for(var chance = this.individualParameters
-					.sensorMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateSensor();
-					}
-				}
-				for(var chance = this.individualParameters
-					.neuronMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateNeuron();
-					}
-				}
-				for(var chance = this.individualParameters
-					.enableMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateEnable();
-					}
-				}
-				for(var chance = this.individualParameters
-					.disableMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateDisable();
-					}
-				}
-				for(var chance = this.individualParameters
-					.destroyMutationProbability(); chance > 0; chance--)
-				{
-					if(chance >= 1 || random.nextDouble() < chance)
-					{
-						mutateDestroy();
-					}
-				}
+				mutation.accept(this);
 			}
 		}
-		return this;
 	}
 
 	/**
