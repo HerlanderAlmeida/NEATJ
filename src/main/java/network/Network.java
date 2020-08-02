@@ -1,24 +1,17 @@
 package network;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-
 import network.connection.Connection;
 import network.neuron.Neuron;
+import utils.GsonUtils;
 
 public class Network
 {
-	private static final Gson gson = new Gson();
-
 	private List<Neuron> inputs;
 	private List<Neuron> outputs;
 	private List<Neuron> biases;
@@ -49,23 +42,14 @@ public class Network
 		this.recurrent = recurrent;
 	}
 
-	public Network(String filename)
+	public Network(String json)
 	{
-		try (var reader = new JsonReader(new BufferedReader(new FileReader(filename))))
-		{
-			var net = (Network) gson.fromJson(reader, Network.class);
-			this.inputs = net.inputs;
-			this.outputs = net.outputs;
-			this.biases = net.biases;
-			this.hidden = net.hidden;
-			this.recurrent = net.recurrent;
-		}
-		catch(IOException e)
-		{
-			var exc = new IllegalStateException("Failed to initialize network!");
-			exc.initCause(e);
-			throw exc;
-		}
+		var net = GsonUtils.fromJson(json, Network.class);
+		this.inputs = net.inputs;
+		this.outputs = net.outputs;
+		this.biases = net.biases;
+		this.hidden = net.hidden;
+		this.recurrent = net.recurrent;
 	}
 
 	public double[] evaluate(int[] inputs)
@@ -205,7 +189,7 @@ public class Network
 
 	public String toJson()
 	{
-		return gson.toJson(this);
+		return GsonUtils.toJson(this);
 	}
 
 	@Override

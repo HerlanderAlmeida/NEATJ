@@ -100,24 +100,29 @@ public class NeuralIndividualTest
 	@Test
 	public void testCrossover()
 	{
-		var networkParameters = NetworkParameters.builder().withInputs(3).withOutputs(2)
-			.withBiases(1).withRecurrency(false).withFullConnectivity(true).build();
-		var individualParameters = IndividualParameters.builder().build();
-		var tracker = new InnovationTracker();
-		var builder = NeuralIndividual.builder().withInnovationTracker(tracker)
-			.withNetworkParameters(networkParameters)
-			.withIndividualParameters(individualParameters);
-		var ind = builder.build();
-		ind = ind.crossover(ind);
-		var genome = ind.genome();
-		Assertions.assertEquals(8, genome.genes().size());
-		networkParameters = NetworkParameters.builder().withInputs(3).withOutputs(2).withBiases(1)
-			.withRecurrency(false).withFullConnectivity(false).build();
-		builder = NeuralIndividual.builder().withInnovationTracker(tracker)
-			.withNetworkParameters(networkParameters)
-			.withIndividualParameters(individualParameters);
-		var subset = builder.build();
-
+		for(var iteration = 0; iteration < 1000; iteration++)
+		{
+			var networkParameters = NetworkParameters.builder().withInputs(3).withOutputs(2)
+				.withBiases(1).withRecurrency(false).withFullConnectivity(true).build();
+			var individualParameters = IndividualParameters.builder().build();
+			var tracker = new InnovationTracker();
+			var builder = NeuralIndividual.builder().withInnovationTracker(tracker)
+				.withNetworkParameters(networkParameters)
+				.withIndividualParameters(individualParameters);
+			var full = builder.build();
+			full = full.crossover(full);
+			var genome = full.genome();
+			Assertions.assertEquals(8, genome.genes().size());
+			networkParameters = NetworkParameters.builder().withInputs(3).withOutputs(2)
+				.withBiases(1).withRecurrency(false).withFullConnectivity(false).build();
+			builder = NeuralIndividual.builder().withInnovationTracker(tracker)
+				.withNetworkParameters(networkParameters)
+				.withIndividualParameters(individualParameters);
+			var subset = builder.build();
+			subset.mutateLink();
+			subset = subset.crossover(full);
+			Assertions.assertTrue(subset.genome().genes().size() >= 1);
+		}
 	}
 
 	@Test

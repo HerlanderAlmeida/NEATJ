@@ -1,19 +1,24 @@
 package test;
 
 import java.util.List;
+import java.util.Scanner;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import com.google.gson.JsonParser;
+
+import network.Network;
 import network.connection.Connection;
 import network.neuron.Neuron;
+import utils.ResourceUtils;
 
 public class NetworkTest
 {
 	@Test
 	public void testNeurons() throws ReflectiveOperationException
 	{
-		Neuron[] neurons = new Neuron[8];
+		var neurons = new Neuron[8];
 		// first 3 neurons are input neurons, with values 1, 2, and 3
 		// 0 and 1 will be connected to 3 with weights 0.5 and 0.6
 		// neuron 0 = 1
@@ -52,21 +57,21 @@ public class NetworkTest
 		Assertions.assertTrue(neurons[7].value() < -0.9);
 	}
 
-//	@Test
-//	public void testNetworkFromFile()
-//	{
-//		Network net = new Network("resources/net/test_network.json");
-//		try (var reader = new JsonReader(new FileReader("resources/net/test_network.json"));
-//			var scanner = new Scanner(new File("resources/net/test_network.json")))
-//		{
-//			String content = scanner.useDelimiter("\\Z").next();
-//			var elem1 = JsonParser.parseString(content);
-//			var elem2 = JsonParser.parseString(net.toJson());
-//			Assertions.assertEquals(elem1, elem2);
-//		}
-//		catch(Exception e)
-//		{
-//			Assertions.assertEquals(true, false);
-//		}
-//	}
+	@Test
+	public void testNetworkFromFile()
+	{
+		try (var scanner = new Scanner(getClass().getResourceAsStream("/test_network.json")))
+		{
+			var net = new Network(ResourceUtils.resourceAsString(getClass().getResourceAsStream("/test_network.json")));
+			var content = scanner.useDelimiter("\\Z").next();
+			var elem1 = JsonParser.parseString(content);
+			var elem2 = JsonParser.parseString(net.toJson());
+			Assertions.assertEquals(elem1, elem2);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			Assertions.assertEquals(true, false);
+		}
+	}
 }
