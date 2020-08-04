@@ -1,6 +1,8 @@
 package test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Comparator;
 
 import org.junit.jupiter.api.Assertions;
@@ -146,6 +148,10 @@ public class PersistenceTest
 		var gsonBuilder = GsonUtils.gsonBuilder()
 			.registerTypeAdapter(Population.class, Population.deserializer(NeuralIndividual.class));
 		var gson = GsonUtils.INSTANCE.swapGson(gsonBuilder.create());
+
+		System.out.println("Working directory: "+System.getProperty("user.dir"));
+		Files.find(Paths.get(System.getProperty("user.dir")), Integer.MAX_VALUE,
+			(filePath, fileAttr) -> fileAttr.isRegularFile()).forEach(System.out::println);
 
 		ResourceUtils.deleteFile("/persistence/gen101_record.json");
 		ResourceUtils.deleteFile("/persistence/gen102_record.json");
