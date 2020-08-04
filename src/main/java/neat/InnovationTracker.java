@@ -8,39 +8,40 @@ import java.util.Map;
  */
 public class InnovationTracker
 {
-	private int marker = 0;
-	private Map<Integer, Map<Integer, Integer>> genes = new HashMap<>();
+	private long marker = 0;
+	private Map<Integer, Map<Integer, Long>> genes = new HashMap<>();
+
 	/**
 	 * For each generation, the same connection must be a different innovation.
 	 * Calling this method each generation will let that be the case.
 	 */
 	public void reset()
 	{
-		genes.clear();
+		this.genes.clear();
 	}
-	
+
 	/**
 	 * @return The historical marker for the given innovation
 	 */
-	public int getMarker(int from, int to)
+	public long getMarker(int from, int to)
 	{
-		if(genes.containsKey(from))
+		if(this.genes.containsKey(from))
 		{
-			var map = genes.get(from);
+			var map = this.genes.get(from);
 			if(map.containsKey(to))
 			{
 				return map.get(to);
 			}
 			else
 			{
-				map.put(to, marker);
+				map.put(to, this.marker);
 			}
 		}
 		else
 		{
-			genes.put(from, new HashMap<>());
-			genes.get(from).put(to, marker);
+			this.genes.put(from, new HashMap<>());
+			this.genes.get(from).put(to, this.marker);
 		}
-		return marker++;
+		return this.marker++;
 	}
 }

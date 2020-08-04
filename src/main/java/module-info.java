@@ -14,8 +14,10 @@ open module avi
 	exports network;
 	exports network.connection;
 	exports network.neuron;
+	// exports utils in case @Exclude exclusion strategy needs alteration
+	exports utils;
 
 	requires org.junit.jupiter.api;
 	requires org.junit.platform.commons;
-	requires com.google.gson;
+	requires transitive com.google.gson;
 }

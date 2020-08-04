@@ -88,10 +88,10 @@ public class XORTest
 					{ 1, 1, 1 }, { 1 }
 			};
 			var sse = 0d;
-			for(var i = 0; i < expected.length / 2; i++)
+			for(var i = 0; i < expected.length; i += 2)
 			{
-				var evaluation = network.evaluate(expected[i * 2]);
-				var target = expected[i * 2 + 1];
+				var evaluation = network.evaluate(expected[i]);
+				var target = expected[i + 1];
 				for(var j = 0; j < target.length; j++)
 				{
 					target[j] -= (evaluation[j] + 1) / 2.0; // calculate errors
@@ -139,7 +139,6 @@ public class XORTest
 		do
 		{
 			++generations;
-			tracker.reset();
 			var top = pop.updateFitnesses(ranker.rank(eval.evaluate(pop.individuals())));
 			/*
 			System.out.println("Generation " + generations + ", Size: "
@@ -147,6 +146,8 @@ public class XORTest
 				+ top.get().individual().genome().neurons() + ", best fitness: " + top.get().result());//*/
 			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
+			tracker.reset();
+			selector.reset();
 		}
 		while(!isVerified3Input(best.individual()) && pop.individuals().count() > 0 && generations < 1000);
 		System.out.println("3-input XOR test completed in "+generations+" generations.");
@@ -238,10 +239,10 @@ public class XORTest
 					{ 1, 1 }, { 0 }
 			};
 			var sse = 0d;
-			for(var i = 0; i < expected.length / 2; i++)
+			for(var i = 0; i < expected.length; i += 2)
 			{
-				var evaluation = network.evaluate(expected[i * 2]);
-				var target = expected[i * 2 + 1];
+				var evaluation = network.evaluate(expected[i]);
+				var target = expected[i + 1];
 				for(var j = 0; j < target.length; j++)
 				{
 					target[j] -= (evaluation[j] + 1) / 2.0; // calculate errors
@@ -289,7 +290,6 @@ public class XORTest
 		do
 		{
 			++generations;
-			tracker.reset();
 			var top = pop.updateFitnesses(ranker.rank(eval.evaluate(pop.individuals())));
 			/*
 			System.out.println("Generation " + generations + ", Size: "
@@ -297,6 +297,8 @@ public class XORTest
 				+ top.get().individual().genome().neurons() + ", best fitness: " + top.get().result());//*/
 			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
+			tracker.reset();
+			selector.reset();
 		}
 		while(!isVerified2Input(best.individual()) && pop.individuals().count() > 0 && generations < 100);
 		System.out.println("2-input XOR test completed in "+generations+" generations.");
@@ -317,6 +319,4 @@ public class XORTest
 			&& network.evaluate(new double[] { 1, 0 })[0] > 0
 			&& network.evaluate(new double[] { 1, 1 })[0] < 0;
 	}
-
-
 }

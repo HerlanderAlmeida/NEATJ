@@ -12,10 +12,13 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import utils.Exclude;
+
 public class NeuralIndividual extends SpeciesIndividual<Double>
 {
 	private static final Random random = new Random();
 	private NeuralGenome genome;
+	@Exclude
 	private InnovationTracker tracker;
 	// per-individual parameter values
 	private IndividualParameters individualParameters;
@@ -78,6 +81,16 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		return this.individualParameters;
 	}
 
+	public InnovationTracker tracker()
+	{
+		return this.tracker;
+	}
+
+	public void tracker(InnovationTracker tracker)
+	{
+		this.tracker = tracker;
+	}
+
 	/**
 	 * Computes genomic distance between two NeuralIndividuals
 	 */
@@ -88,8 +101,8 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			var genome1 = this.genome;
 			var genome2 = other.genome;
-			Collections.sort(genome1.genes(), Comparator.comparingInt(NeuralGene::marker));
-			Collections.sort(genome2.genes(), Comparator.comparingInt(NeuralGene::marker));
+			Collections.sort(genome1.genes(), Comparator.comparingLong(NeuralGene::marker));
+			Collections.sort(genome2.genes(), Comparator.comparingLong(NeuralGene::marker));
 			var iter1 = genome1.genes().iterator();
 			var iter2 = genome2.genes().iterator();
 			var gene1 = iter1.hasNext() ? iter1.next() : null;
@@ -156,8 +169,8 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				: random.nextBoolean() ? this.individualParameters : other.individualParameters;
 		var child = new NeuralIndividual(this.tracker, this.genome.networkParameters(),
 			individualParameters.copy());
-		Collections.sort(genome1.genes(), Comparator.comparingInt(NeuralGene::marker));
-		Collections.sort(genome2.genes(), Comparator.comparingInt(NeuralGene::marker));
+		Collections.sort(genome1.genes(), Comparator.comparingLong(NeuralGene::marker));
+		Collections.sort(genome2.genes(), Comparator.comparingLong(NeuralGene::marker));
 		var iter1 = genome1.genes().iterator();
 		var iter2 = genome2.genes().iterator();
 		var gene1 = iter1.hasNext() ? iter1.next() : null;

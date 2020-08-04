@@ -141,7 +141,7 @@ public class NeuralIndividualTest
 		Assertions.assertEquals(0, ind.genome().genes().size());
 	}
 
-	private boolean inRange(int num, int low, int high)
+	private boolean inRange(long num, long low, long high)
 	{
 		return low <= num && num <= high;
 	}

@@ -14,24 +14,52 @@ import java.util.stream.Stream;
 import genetic.Population;
 import genetic.evaluate.Evaluation;
 import genetic.selection.Selector;
+import utils.Exclude;
 
 public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Number & Comparable<R>>
 {
 	public static final Random random = ThreadLocalRandom.current();
 	private List<Species<T, R>> species = new ArrayList<>();
 	private SpeciationParameters speciationParameters;
+	@Exclude
 	private Selector<T> selector;
-	private Supplier<T> supplier;
+	@Exclude
+	private Supplier<T> generator;
 	private int size;
 
-	private SpeciatedPopulation(int n, Supplier<T> supplier, SpeciationParameters parameters,
+	private SpeciatedPopulation(int size, Supplier<T> generator, SpeciationParameters parameters,
 		Selector<T> selector)
 	{
-		Objects.requireNonNull(supplier);
-		this.supplier = supplier;
+		Objects.requireNonNull(generator);
+		this.generator = generator;
 		this.speciationParameters = parameters;
 		this.selector = selector;
-		this.updateSpecies(Stream.generate(supplier).limit(this.size = n));
+		repopulate(size);
+	}
+
+	public Selector<T> selector()
+	{
+		return this.selector;
+	}
+
+	public void selector(Selector<T> selector)
+	{
+		this.selector = selector;
+	}
+
+	public Supplier<T> generator()
+	{
+		return this.generator;
+	}
+
+	public void generator(Supplier<T> supplier)
+	{
+		this.generator = supplier;
+	}
+
+	public void repopulate(int size)
+	{
+		this.updateSpecies(Stream.generate(this.generator).limit(this.size = size));
 	}
 
 	public void updateRepresentatives()
@@ -159,8 +187,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	{
 		if(this.species.size() == 0)
 		{
-			System.out.println("Hard reset!");
-			this.updateSpecies(Stream.generate(this.supplier).limit(this.size));
+			repopulate(this.size);
 		}
 		var totalAverageFitness = this.species.stream().mapToDouble(Species::averageFitness).sum();
 		var slotsRemaining = this.size;
