@@ -84,7 +84,7 @@ public class ResourceUtils
 	private static String absolute(String filename)
 	{
 		var path = Paths.get(filename);
-		if(!path.equals(path.toAbsolutePath()))
+		if(!path.equals(path.toAbsolutePath()) || !path.toFile().exists())
 		{
 			if(path.startsWith("/"))
 			{
