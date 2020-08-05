@@ -2,6 +2,7 @@ package test;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import neat.NetworkParameters;
 import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
+import neat.Species;
 import network.neuron.Neuron;
 import utils.GsonUtils;
 import utils.ResourceUtils;
@@ -30,7 +32,7 @@ import utils.ResourceUtils;
 public class PersistenceTest
 {
 	@Test
-	public void testXORwithNEAT() throws IOException
+	public void testPersistenceWithNEAT() throws IOException
 	{
 		var networkParameters = NetworkParameters.builder()
 			.withInputs(3)
@@ -166,19 +168,24 @@ public class PersistenceTest
 				pop.individuals().forEach(ni -> ni.tracker(persisted.tracker()));
 			}
 			++generations;
-			var top = pop.updateFitnesses(ranker.rank(eval.evaluate(pop.individuals())));
+			// we want parallel and unordered for evaluation, but not for rank
+			var evals = eval
+				.evaluate(pop.parallelStream().flatMap(Species::parallelStream).unordered())
+				.collect(Collectors.toList());
+			var top = pop.updateFitnesses(ranker.rank(evals));
 			//*
 			System.out.println("Generation " + generations + ", Size: "
 				+ top.get().individual().genome().genes().size() + ", Neurons: "
-				+ top.get().individual().genome().neurons() + ", best fitness: " + top.get().result());//*/
+				+ top.get().individual().genome().neurons() + ", best fitness: "
+				+ top.get().result());// */
 			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
 			tracker.reset();
 			selector.reset();
-			ResourceUtils.writeObjectToFile("/persistence/gen"+generations+"_record.json",
+			ResourceUtils.writeObjectToFile("/persistence/gen" + generations + "_record.json",
 				new PersistentRecord(pop, tracker));
 		} while(generations < 105);
-		System.out.println("Persistence test completed in "+generations+" generations.");
+		System.out.println("Persistence test completed in " + generations + " generations.");
 		Assertions.assertTrue(pop.individuals().count() > 0, "All individuals perished");
 		var network = best.individual().genome().toNetwork(Neuron::newHidden);
 		var inputs = new double[][] {

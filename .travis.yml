@@ -1,8 +1,12 @@
-os: 
-  - linux
-dist:
-  - xenial
 language:
   - java
-jdk: 
+jdk:
   - openjdk14
+
+jobs:
+  include:
+  - name: "Linux Integration Tests"
+	os: linux
+	dist: xenial
+  - name: "OSX Integration Tests"
+	os: osx 
