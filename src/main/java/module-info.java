@@ -1,4 +1,4 @@
-open module avi
+open module neatj
 {
 	exports genetic;
 	exports genetic.crossover;
