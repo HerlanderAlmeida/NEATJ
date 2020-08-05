@@ -6,7 +6,7 @@ jdk:
 jobs:
   include:
   - name: "Linux Integration Tests"
-	os: linux
-	dist: xenial
+    os: linux
+    dist: xenial
   - name: "OSX Integration Tests"
-	os: osx 
+    os: osx
