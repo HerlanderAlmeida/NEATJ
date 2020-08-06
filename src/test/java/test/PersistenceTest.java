@@ -141,8 +141,10 @@ public class PersistenceTest
 
 		// track the best individual
 		var best = new Evaluation<>((NeuralIndividual)null, Double.NEGATIVE_INFINITY);
-		// starting with generation 100
-		var generations = 100;
+		// starting from generation 100, will write generations 100 + 1 to 100 + 5
+		var firstGeneration = 100;
+		var numGenerations = 5;
+		var thisGeneration = firstGeneration;
 
 		// set our serialization/deserialization
 		var gsonBuilder = GsonUtils.gsonBuilder()
@@ -157,24 +159,24 @@ public class PersistenceTest
 
 		do
 		{
-			if(generations > 1)
+			if(thisGeneration == firstGeneration && thisGeneration != 0)
 			{
 				var persisted = ResourceUtils.readObjectFromFile(
-					"/persistence/gen" + generations + "_record.json", PersistentRecord.class);
+					"/persistence/gen" + thisGeneration + "_record.json", PersistentRecord.class);
 				pop = persisted.pop();
 				pop.selector(selector);
 				pop.generator(builder::build);
 				tracker = persisted.tracker();
 				pop.individuals().forEach(ni -> ni.tracker(persisted.tracker()));
 			}
-			++generations;
+			++thisGeneration;
 			// we want parallel and unordered for evaluation, but not for rank
 			var evals = eval
 				.evaluate(pop.parallelStream().flatMap(Species::parallelStream).unordered())
 				.collect(Collectors.toList());
 			var top = pop.updateFitnesses(ranker.rank(evals));
 			//*
-			System.out.println("Generation " + generations + ", Size: "
+			System.out.println("Generation " + thisGeneration + ", Size: "
 				+ top.get().individual().genome().genes().size() + ", Neurons: "
 				+ top.get().individual().genome().neurons() + ", best fitness: "
 				+ top.get().result());// */
@@ -182,10 +184,10 @@ public class PersistenceTest
 			pop.updateSpecies(pop.repopulate());
 			tracker.reset();
 			selector.reset();
-			ResourceUtils.writeObjectToFile("/persistence/gen" + generations + "_record.json",
+			ResourceUtils.writeObjectToFile("/persistence/gen" + thisGeneration + "_record.json",
 				new PersistentRecord(pop, tracker));
-		} while(generations < 105);
-		System.out.println("Persistence test completed in " + generations + " generations.");
+		} while(thisGeneration < firstGeneration + numGenerations);
+		System.out.println("Persistence test completed in " + numGenerations + " generations.");
 		Assertions.assertTrue(pop.individuals().count() > 0, "All individuals perished");
 		var network = best.individual().genome().toNetwork(Neuron::newHidden);
 		var inputs = new double[][] {
