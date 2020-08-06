@@ -26,7 +26,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	@Exclude
 	private Supplier<T> generator;
 	private int size;
-	
+
 	private SpeciatedPopulation(int size, Supplier<T> generator, SpeciationParameters parameters,
 		Selector<T> selector)
 	{
@@ -36,32 +36,32 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		this.selector = selector;
 		repopulate(size);
 	}
-	
+
 	public Selector<T> selector()
 	{
 		return this.selector;
 	}
-	
+
 	public void selector(Selector<T> selector)
 	{
 		this.selector = selector;
 	}
-	
+
 	public Supplier<T> generator()
 	{
 		return this.generator;
 	}
-	
+
 	public void generator(Supplier<T> supplier)
 	{
 		this.generator = supplier;
 	}
-	
+
 	public void repopulate(int size)
 	{
 		this.updateSpecies(Stream.generate(this.generator).limit(this.size = size));
 	}
-	
+
 	public void updateRepresentatives()
 	{
 		for(var species : this.species)
@@ -70,22 +70,22 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			species.perish();
 		}
 	}
-	
+
 	public Stream<T> individuals()
 	{
 		return stream().flatMap(Species::stream);
 	}
-	
+
 	public Stream<Species<T, R>> stream()
 	{
 		return this.species.stream();
 	}
-	
+
 	public Stream<Species<T, R>> parallelStream()
 	{
 		return this.species.parallelStream();
 	}
-	
+
 	private void classifyIndividual(T t)
 	{
 		var matched = false;
@@ -108,7 +108,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			this.species.add(newSpecies);
 		}
 	}
-	
+
 	public void updateSpecies(Stream<T> ts)
 	{
 		updateRepresentatives();
@@ -127,7 +127,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 					- this.speciationParameters.differenceThresholdStep());
 		}
 	}
-	
+
 	public Optional<Evaluation<T, R>> updateFitnesses(Stream<Evaluation<T, R>> ranked)
 	{
 		var evals = ranked.collect(Collectors.toList());
@@ -135,8 +135,8 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		this.species.forEach(species -> species.population().sort(
 			Comparator.<SpeciesIndividual<R>, R>comparing(SpeciesIndividual::fitness).reversed()));
 		this.species.forEach(Species::age);
-		removeStaleSpecies();
 		this.species.forEach(Species::adjustFitness);
+		removeStaleSpecies();
 		var min = this.species.stream().mapToDouble(Species::averageFitness).min();
 		if(min.isPresent() && min.getAsDouble() <= 0)
 		{
@@ -148,7 +148,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		return evals.stream().max(Comparator.comparing(Evaluation::result));
 	}
-	
+
 	public void removeStaleSpecies()
 	{
 		this.species
@@ -184,7 +184,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		this.species.removeIf(Species::perished);
 	}
-	
+
 	/**
 	 * Assumption: species populations are sorted highest to lowest
 	 */
@@ -239,47 +239,47 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		return ret.build();
 	}
-	
+
 	public static <T extends SpeciesIndividual<R>, R extends Number & Comparable<R>> Builder<T, R> builder()
 	{
 		return new Builder<>();
 	}
-	
+
 	public static class Builder<T extends SpeciesIndividual<R>, R extends Number & Comparable<R>>
 	{
 		private int size;
 		private Supplier<T> generator;
 		private SpeciationParameters parameters;
 		private Selector<T> selector;
-		
+
 		private Builder()
 		{
 		}
-		
+
 		public Builder<T, R> withSize(int size)
 		{
 			this.size = size;
 			return this;
 		}
-		
+
 		public Builder<T, R> withGenerator(Supplier<T> generator)
 		{
 			this.generator = generator;
 			return this;
 		}
-		
+
 		public Builder<T, R> withParameters(SpeciationParameters parameters)
 		{
 			this.parameters = parameters;
 			return this;
 		}
-		
+
 		public Builder<T, R> withSelector(Selector<T> selector)
 		{
 			this.selector = selector;
 			return this;
 		}
-		
+
 		public SpeciatedPopulation<T, R> build()
 		{
 			return new SpeciatedPopulation<>(this.size, this.generator, this.parameters,
