@@ -108,12 +108,13 @@ public class XORTest
 //		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
 		// this mutation can make smaller networks, but may
 		// also spiral network size out of control
+		var noMutation = new Mutation<NeuralIndividual>(t -> t);
 		var crossedMutation = new Mutation<>(NeuralIndividual::mutateCrossover);
 		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateCloning);
 		// define selection
 		var selector = Selector.<NeuralIndividual>selectingBy(
 			new ElitistSelection<NeuralIndividual>(1)
-				.withPostMutations(crossedMutation::apply),
+				.withPostMutations(noMutation::apply),
 			new CrossoverSelection<NeuralIndividual>()
 				.withFirstSelector(new RouletteSelection<>())
 				.withSecondSelector(new RankSelection<>())
@@ -147,7 +148,6 @@ public class XORTest
 			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
 			tracker.reset();
-			selector.reset();
 		}
 		while(!isVerified3Input(best.individual()) && pop.individuals().count() > 0 && generations < 1000);
 		System.out.println("3-input XOR test completed in "+generations+" generations.");
@@ -259,12 +259,13 @@ public class XORTest
 //		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
 		// this mutation can make smaller networks, but may
 		// also spiral network size out of control
+		var noMutation = new Mutation<NeuralIndividual>(t -> t);
 		var crossedMutation = new Mutation<>(NeuralIndividual::mutateCrossover);
 		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateCloning);
 		// define selection
 		var selector = Selector.<NeuralIndividual>selectingBy(
 			new ElitistSelection<NeuralIndividual>(1)
-				.withPostMutations(crossedMutation::apply),
+				.withPostMutations(noMutation::apply),
 			new CrossoverSelection<NeuralIndividual>()
 				.withFirstSelector(new RouletteSelection<>())
 				.withSecondSelector(new RankSelection<>())
@@ -298,7 +299,6 @@ public class XORTest
 			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
 			tracker.reset();
-			selector.reset();
 		}
 		while(!isVerified2Input(best.individual()) && pop.individuals().count() > 0 && generations < 100);
 		System.out.println("2-input XOR test completed in "+generations+" generations.");

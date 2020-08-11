@@ -114,12 +114,13 @@ public class PersistenceTest
 //		var crossedMutation = new Mutation<NeuralIndividual>(t -> t);
 		// this mutation can make smaller networks, but may
 		// also spiral network size out of control
+		var noMutation = new Mutation<NeuralIndividual>(t -> t);
 		var crossedMutation = new Mutation<>(NeuralIndividual::mutateCrossover);
 		var uncrossedMutation = new Mutation<>(NeuralIndividual::mutateCloning);
 		// define selection
 		var selector = Selector.<NeuralIndividual>selectingBy(
 			new ElitistSelection<NeuralIndividual>(1)
-				.withPostMutations(crossedMutation::apply),
+				.withPostMutations(noMutation::apply),
 			new CrossoverSelection<NeuralIndividual>()
 				.withFirstSelector(new RouletteSelection<>())
 				.withSecondSelector(new RankSelection<>())
@@ -183,7 +184,6 @@ public class PersistenceTest
 			best = top.orElse(best).result() < best.result() ? best : top.get();
 			pop.updateSpecies(pop.repopulate());
 			tracker.reset();
-			selector.reset();
 			ResourceUtils.writeObjectToFile("/persistence/gen" + thisGeneration + "_record.json",
 				new PersistentRecord(pop, tracker));
 		} while(thisGeneration < firstGeneration + numGenerations);
