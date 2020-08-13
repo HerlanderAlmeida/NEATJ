@@ -97,18 +97,15 @@ public class NeuralGenome implements Genome
 		IntStream.range(0, inputs() + outputs() + biases()).forEach(x -> map.put(x, x));
 		this.genes.stream().filter(NeuralGene::enabled).forEach(gene ->
 		{
-			if(gene.enabled())
+			if(!map.containsKey(gene.from()))
 			{
-				if(!map.containsKey(gene.from()))
-				{
-					map.put(gene.from(), network.addNeuron(supplier.get()));
-				}
-				if(!map.containsKey(gene.to()))
-				{
-					map.put(gene.to(), network.addNeuron(supplier.get()));
-				}
-				network.addConnection(map.get(gene.from()), map.get(gene.to()), gene.weight());
+				map.put(gene.from(), network.addNeuron(supplier.get()));
 			}
+			if(!map.containsKey(gene.to()))
+			{
+				map.put(gene.to(), network.addNeuron(supplier.get()));
+			}
+			network.addConnection(map.get(gene.from()), map.get(gene.to()), gene.weight());
 		});
 		return network;
 	}

@@ -69,9 +69,38 @@ public class Network
 		}
 	}
 
-	private double[] evaluateRecurrent(double[] inputs)
+	private double[] evaluateRecurrent(double[] inputValues)
 	{
-		throw new UnsupportedOperationException("Operation not implemented yet!");
+		if(inputValues.length != numInputs())
+		{
+			throw new IllegalArgumentException(
+				String.format("Invalid number of input values: expected %d, found %d", numInputs(),
+					inputValues.length));
+		}
+		var index = 0;
+		for(var input : this.inputs)
+		{
+			input.value(inputValues[index++]);
+		}
+		for(var bias : this.biases)
+		{
+			bias.value(1);
+		}
+		for(var hidden : this.hidden)
+		{
+			hidden.update();
+		}
+		for(var output : this.outputs)
+		{
+			output.update();
+		}
+		var outputValues = new double[this.outputs.size()];
+		index = 0;
+		for(var output : this.outputs)
+		{
+			outputValues[index++] = output.value();
+		}
+		return outputValues;
 	}
 
 	private double[] evaluateOnce(double[] inputValues)
