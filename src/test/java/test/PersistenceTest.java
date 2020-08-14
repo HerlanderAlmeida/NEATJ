@@ -25,6 +25,7 @@ import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
 import neat.Species;
+import neat.StalenessIndicator;
 import network.neuron.Neuron;
 import utils.GsonUtils;
 import utils.ResourceUtils;
@@ -130,6 +131,9 @@ public class PersistenceTest
 				.withCrossedMutation(crossedMutation::apply)
 				.withUncrossedMutation(uncrossedMutation::apply)
 		);
+		// define species' measure of staleness
+		StalenessIndicator<NeuralIndividual, Double> stalenessIndicator = species -> species
+			.fitnesses().max();
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
@@ -139,6 +143,7 @@ public class PersistenceTest
 			.withGenerator(builder::build)
 			.withParameters(speciationParameters)
 			.withSelector(selector)
+			.withStalenessIndicator(stalenessIndicator)
 			.build();
 
 		// track the best individual
@@ -168,6 +173,7 @@ public class PersistenceTest
 				pop = persisted.pop();
 				pop.selector(selector);
 				pop.generator(builder::build);
+				pop.stalenessIndicator(stalenessIndicator);
 				tracker = persisted.tracker();
 				pop.individuals().forEach(ni -> ni.tracker(persisted.tracker()));
 			}

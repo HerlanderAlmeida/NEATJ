@@ -21,6 +21,7 @@ import neat.NetworkParameters;
 import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
+import neat.StalenessIndicator;
 import network.neuron.Neuron;
 
 public class XORTest
@@ -124,6 +125,9 @@ public class XORTest
 				.withCrossedMutation(crossedMutation::apply)
 				.withUncrossedMutation(uncrossedMutation::apply)
 		);
+		// define species' measure of staleness
+		StalenessIndicator<NeuralIndividual, Double> stalenessIndicator = species -> species
+			.fitnesses().max();
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
@@ -133,6 +137,7 @@ public class XORTest
 			.withGenerator(builder::build)
 			.withParameters(speciationParameters)
 			.withSelector(selector)
+			.withStalenessIndicator(stalenessIndicator)
 			.build();
 
 		// track the best individual
@@ -276,6 +281,9 @@ public class XORTest
 				.withCrossedMutation(crossedMutation::apply)
 				.withUncrossedMutation(uncrossedMutation::apply)
 		);
+		// define species' measure of staleness
+		StalenessIndicator<NeuralIndividual, Double> stalenessIndicator = species -> species
+			.fitnesses().max();
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
@@ -285,6 +293,7 @@ public class XORTest
 			.withGenerator(builder::build)
 			.withParameters(speciationParameters)
 			.withSelector(selector)
+			.withStalenessIndicator(stalenessIndicator)
 			.build();
 
 		// track the best individual

@@ -25,15 +25,18 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	private Selector<T> selector;
 	@Exclude
 	private Supplier<T> generator;
+	@Exclude
+	private StalenessIndicator<T, R> stalenessIndicator;
 	private int size;
 
 	private SpeciatedPopulation(int size, Supplier<T> generator, SpeciationParameters parameters,
-		Selector<T> selector)
+		Selector<T> selector, StalenessIndicator<T, R> stalenessIndicator)
 	{
 		Objects.requireNonNull(generator);
 		this.generator = generator;
 		this.speciationParameters = parameters;
 		this.selector = selector;
+		this.stalenessIndicator = stalenessIndicator;
 		repopulate(size);
 	}
 
@@ -60,6 +63,16 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	public void repopulate(int size)
 	{
 		this.updateSpecies(Stream.generate(this.generator).limit(this.size = size));
+	}
+
+	public StalenessIndicator<T, R> stalenessIndicator()
+	{
+		return this.stalenessIndicator;
+	}
+
+	public void stalenessIndicator(StalenessIndicator<T, R> stalenessIndicator)
+	{
+		this.stalenessIndicator = stalenessIndicator;
 	}
 
 	public void updateRepresentatives()
@@ -134,7 +147,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		evals.forEach(eval -> eval.individual().fitness(eval.result()));
 		this.species.forEach(species -> species.population().sort(
 			Comparator.<SpeciesIndividual<R>, R>comparing(SpeciesIndividual::fitness).reversed()));
-		this.species.forEach(Species::age);
+		this.species.forEach(species -> species.age(this.stalenessIndicator.apply(species)));
 		this.species.forEach(Species::adjustFitness);
 		removeStaleSpecies();
 		var min = this.species.stream().mapToDouble(Species::averageFitness).min();
@@ -251,6 +264,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		private Supplier<T> generator;
 		private SpeciationParameters parameters;
 		private Selector<T> selector;
+		private StalenessIndicator<T, R> stalenessIndicator;
 
 		private Builder()
 		{
@@ -280,10 +294,19 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			return this;
 		}
 
+		/**
+		 * Staleness is measured for each species, using this indicator as the measure of comparison
+		 */
+		public Builder<T, R> withStalenessIndicator(StalenessIndicator<T, R> stalenessIndicator)
+		{
+			this.stalenessIndicator = stalenessIndicator;
+			return this;
+		}
+
 		public SpeciatedPopulation<T, R> build()
 		{
 			return new SpeciatedPopulation<>(this.size, this.generator, this.parameters,
-				this.selector);
+				this.selector, this.stalenessIndicator);
 		}
 	}
 }
