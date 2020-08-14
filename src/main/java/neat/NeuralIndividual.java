@@ -293,7 +293,10 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 
 	public NeuralIndividual mutateComprehensively()
 	{
-		this.individualParameters = this.individualParameters.mutateProbabilities(random);
+		if(this.individualParameters.canMutate())
+		{
+			this.individualParameters = this.individualParameters.mutateProbabilities(random);
+		}
 		applyMutation(this.individualParameters::weightMutationProbability,
 			NeuralIndividual::mutateWeight);
 		applyMutation(this.individualParameters::randomWeightMutationProbability,

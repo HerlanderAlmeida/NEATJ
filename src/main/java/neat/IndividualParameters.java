@@ -2,7 +2,7 @@ package neat;
 
 import java.util.Random;
 
-public record IndividualParameters(double cloningMutationProbability,
+public record IndividualParameters(boolean canMutate, double cloningMutationProbability,
 	double crossoverMutationProbability, double weightMutationProbability,
 	double randomWeightMutationProbability, double linkMutationProbability,
 	double biasLinkMutationProbability, double sensorMutationProbability,
@@ -12,6 +12,10 @@ public record IndividualParameters(double cloningMutationProbability,
 
 	public IndividualParameters mutateProbabilities(Random random)
 	{
+		if(!canMutate())
+		{
+			throw new IllegalStateException("Individual parameters mutated inexplicably!");
+		}
 		// mutate by 0.95, or 1/0.95
 		var less = 0.95;
 		var more = 1.0526315789473684210526315789474;
@@ -37,10 +41,11 @@ public record IndividualParameters(double cloningMutationProbability,
 			* (random.nextBoolean() ? more : less);
 		var destroyMutationProbability = this.destroyMutationProbability
 			* (random.nextBoolean() ? more : less);
-		return new IndividualParameters(cloningMutationProbability, crossoverMutationProbability,
-			weightMutationProbability, randomWeightMutationProbability, linkMutationProbability,
-			biasLinkMutationProbability, sensorMutationProbability, neuronMutationProbability,
-			enableMutationProbability, disableMutationProbability, destroyMutationProbability);
+		return new IndividualParameters(true, cloningMutationProbability,
+			crossoverMutationProbability, weightMutationProbability,
+			randomWeightMutationProbability, linkMutationProbability, biasLinkMutationProbability,
+			sensorMutationProbability, neuronMutationProbability, enableMutationProbability,
+			disableMutationProbability, destroyMutationProbability);
 	}
 
 	public static Builder builder()
@@ -50,7 +55,7 @@ public record IndividualParameters(double cloningMutationProbability,
 
 	public IndividualParameters copy()
 	{
-		return new IndividualParameters(this.cloningMutationProbability,
+		return new IndividualParameters(this.canMutate, this.cloningMutationProbability,
 			this.crossoverMutationProbability, this.weightMutationProbability,
 			this.randomWeightMutationProbability, this.linkMutationProbability,
 			this.biasLinkMutationProbability, this.sensorMutationProbability,
@@ -60,6 +65,7 @@ public record IndividualParameters(double cloningMutationProbability,
 
 	public static class Builder
 	{
+		private boolean canMutate = true;
 		private double cloningMutationProbability = 1;
 		private double crossoverMutationProbability = 0.1;
 		private double weightMutationProbability = 0.225;
@@ -74,6 +80,12 @@ public record IndividualParameters(double cloningMutationProbability,
 
 		private Builder()
 		{
+		}
+
+		public Builder withParameterEvolution(boolean canMutate)
+		{
+			this.canMutate = canMutate;
+			return this;
 		}
 
 		public Builder withCloningMutationProbability(double cloningMutationProbability)
@@ -144,7 +156,7 @@ public record IndividualParameters(double cloningMutationProbability,
 
 		public IndividualParameters build()
 		{
-			return new IndividualParameters(this.cloningMutationProbability,
+			return new IndividualParameters(this.canMutate, this.cloningMutationProbability,
 				this.crossoverMutationProbability, this.weightMutationProbability,
 				this.randomWeightMutationProbability, this.linkMutationProbability,
 				this.biasLinkMutationProbability, this.sensorMutationProbability,

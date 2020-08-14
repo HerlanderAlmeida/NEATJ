@@ -40,6 +40,7 @@ public class XORTest
 			.build();
 		// initial individual parameters for each NeuralIndividual
 		var individualParameters = IndividualParameters.builder()
+			.withParameterEvolution(true)
 			.withCloningMutationProbability(1.1)
 			.withCrossoverMutationProbability(0.1)
 			.withWeightMutationProbability(0.225)
@@ -195,6 +196,7 @@ public class XORTest
 			.build();
 		// initial individual parameters for each NeuralIndividual
 		var individualParameters = IndividualParameters.builder()
+			.withParameterEvolution(true)
 			.withCloningMutationProbability(1.1)
 			.withCrossoverMutationProbability(0.1)
 			.withWeightMutationProbability(0.225)
