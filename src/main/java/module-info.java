@@ -18,6 +18,5 @@ open module neatj
 	exports utils;
 
 	requires org.junit.jupiter.api;
-	requires org.junit.platform.commons;
 	requires transitive com.google.gson;
 }
