@@ -28,10 +28,6 @@ public class RecordDeserializer
 				var types = new ArrayList<Class<?>>();
 				var params = new ArrayList<Object>();
 				var obj = json.getAsJsonObject();
-				for(var field : clazz.getDeclaredFields())
-				{
-					field.setAccessible(true);
-				}
 				var components = clazz.getRecordComponents();
 				for(var component : components)
 				{
@@ -72,13 +68,6 @@ public class RecordDeserializer
 				{
 					e.printStackTrace();
 					throw new IllegalArgumentException(json.toString());
-				}
-				finally
-				{
-					for(var field : clazz.getDeclaredFields())
-					{
-						field.setAccessible(false);
-					}
 				}
 			}
 		};
