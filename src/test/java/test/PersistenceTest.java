@@ -28,6 +28,7 @@ import neat.Species;
 import neat.StalenessIndicator;
 import network.neuron.Neuron;
 import utils.GsonUtils;
+import utils.RecordDeserializer;
 import utils.ResourceUtils;
 
 public class PersistenceTest
@@ -155,7 +156,9 @@ public class PersistenceTest
 
 		// set our serialization/deserialization
 		var gsonBuilder = GsonUtils.gsonBuilder()
-			.registerTypeAdapter(Population.class, Population.deserializer(NeuralIndividual.class));
+			.registerTypeAdapter(Population.class, Population.deserializer(NeuralIndividual.class))
+			.registerTypeAdapter(PersistentRecord.class,
+				RecordDeserializer.forClass(PersistentRecord.class));
 		var gson = GsonUtils.INSTANCE.swapGson(gsonBuilder.create());
 
 		ResourceUtils.deleteFile("/persistence/gen101_record.json");
@@ -223,5 +226,8 @@ public class PersistenceTest
 	}
 
 	// defined separately (important!) for purposes of persistence. The GSON library doesn't like local records
-	private record PersistentRecord(SpeciatedPopulation<NeuralIndividual, Double> pop, InnovationTracker tracker) {};
+	private record PersistentRecord(SpeciatedPopulation<NeuralIndividual, Double> pop,
+		InnovationTracker tracker)
+	{
+	}
 }

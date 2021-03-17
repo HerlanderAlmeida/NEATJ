@@ -8,6 +8,14 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import genetic.evaluate.Evaluation;
+import neat.IndividualParameters;
+import neat.NetworkParameters;
+import neat.NeuralGene;
+import neat.NeuralIndividual;
+import neat.SpeciationParameters;
+import network.connection.Connection;
+
 public enum GsonUtils
 {
 	INSTANCE;
@@ -33,9 +41,20 @@ public enum GsonUtils
 
 	public static GsonBuilder gsonBuilder()
 	{
-		return new GsonBuilder()
+		var gsonBuilder = new GsonBuilder()
 			.addSerializationExclusionStrategy(GsonUtils.serializationExclusionStrategy())
 			.addDeserializationExclusionStrategy(GsonUtils.deserializationExclusionStrategy());
+		var classes = new Class<?>[] {
+				Evaluation.class, IndividualParameters.class, NetworkParameters.class,
+				NeuralGene.class, NeuralIndividual.class, SpeciationParameters.class,
+				Connection.class
+		};
+		for(var clazz : classes)
+		{
+			gsonBuilder = gsonBuilder.registerTypeAdapter(clazz,
+				RecordDeserializer.forClass(clazz));
+		}
+		return gsonBuilder;
 	}
 
 	public static <T> T fromJson(String json, Class<T> classOfT)
