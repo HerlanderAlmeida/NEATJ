@@ -19,14 +19,44 @@ public class RecordDeserializer
 			public T deserialize(JsonElement json, Type typeOfT,
 				JsonDeserializationContext context) throws JsonParseException
 			{
+				if(!clazz.isRecord())
+				{
+					throw new JsonParseException(
+						"RecordDeserializer can't deserialize non-record %s!"
+							.formatted(typeOfT));
+				}
 				var types = new ArrayList<Class<?>>();
 				var params = new ArrayList<Object>();
 				var obj = json.getAsJsonObject();
-				for(var component : clazz.getRecordComponents())
+				for(var field : clazz.getDeclaredFields())
+				{
+					field.setAccessible(true);
+				}
+				var components = clazz.getRecordComponents();
+				for(var component : components)
 				{
 					types.add(component.getType());
-					params.add(context.deserialize(obj.get(component.getName()),
-						component.getGenericType()));
+					var componentElem = obj.get(component.getName());
+					if(componentElem.isJsonObject())
+					{
+						params.add(context.deserialize(componentElem.getAsJsonObject(),
+							component.getGenericType()));
+					}
+					else if(componentElem.isJsonPrimitive())
+					{
+						params.add(context.deserialize(componentElem.getAsJsonPrimitive(),
+							component.getGenericType()));
+					}
+					else if(componentElem.isJsonArray())
+					{
+						params.add(context.deserialize(componentElem.getAsJsonArray(),
+							component.getGenericType()));
+					}
+					else if(componentElem.isJsonNull())
+					{
+						params.add(context.deserialize(componentElem.getAsJsonNull(),
+							component.getGenericType()));
+					}
 				}
 				Constructor<T> constructor;
 				try
@@ -42,6 +72,13 @@ public class RecordDeserializer
 				{
 					e.printStackTrace();
 					throw new IllegalArgumentException(json.toString());
+				}
+				finally
+				{
+					for(var field : clazz.getDeclaredFields())
+					{
+						field.setAccessible(false);
+					}
 				}
 			}
 		};
