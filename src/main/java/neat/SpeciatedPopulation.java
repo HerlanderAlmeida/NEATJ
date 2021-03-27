@@ -37,7 +37,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		this.speciationParameters = parameters;
 		this.selector = selector;
 		this.stalenessIndicator = stalenessIndicator;
-		repopulate(size);
+		this.repopulate(size);
 	}
 
 	public Selector<T> selector()
@@ -86,7 +86,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 
 	public Stream<T> individuals()
 	{
-		return stream().flatMap(Species::stream);
+		return this.stream().flatMap(Species::stream);
 	}
 
 	public Stream<Species<T, R>> stream()
@@ -124,7 +124,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 
 	public void updateSpecies(Stream<T> ts)
 	{
-		updateRepresentatives();
+		this.updateRepresentatives();
 		ts.forEach(this::classifyIndividual);
 		this.species.removeIf(Species::perished);
 		if(this.species.size() > this.speciationParameters.desiredSpecies())
@@ -149,7 +149,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			Comparator.<SpeciesIndividual<R>, R>comparing(SpeciesIndividual::fitness).reversed()));
 		this.species.forEach(species -> species.age(this.stalenessIndicator.apply(species)));
 		this.species.forEach(Species::adjustFitness);
-		removeStaleSpecies();
+		this.removeStaleSpecies();
 		var min = this.species.stream().mapToDouble(Species::averageFitness).min();
 		if(min.isPresent() && min.getAsDouble() <= 0)
 		{
@@ -205,7 +205,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	{
 		if(this.species.size() == 0)
 		{
-			repopulate(this.size);
+			this.repopulate(this.size);
 		}
 		var totalAverageFitness = this.species.stream().mapToDouble(Species::averageFitness).sum();
 		var slotsRemaining = this.size;

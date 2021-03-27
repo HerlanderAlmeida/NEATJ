@@ -279,14 +279,14 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 
 	public NeuralIndividual mutateCrossover()
 	{
-		applyMutation(this.individualParameters::crossoverMutationProbability,
+		this.applyMutation(this.individualParameters::crossoverMutationProbability,
 			NeuralIndividual::mutateComprehensively);
 		return this;
 	}
 
 	public NeuralIndividual mutateCloning()
 	{
-		applyMutation(this.individualParameters::cloningMutationProbability,
+		this.applyMutation(this.individualParameters::cloningMutationProbability,
 			NeuralIndividual::mutateComprehensively);
 		return this;
 	}
@@ -297,23 +297,23 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			this.individualParameters = this.individualParameters.mutateProbabilities(random);
 		}
-		applyMutation(this.individualParameters::weightMutationProbability,
+		this.applyMutation(this.individualParameters::weightMutationProbability,
 			NeuralIndividual::mutateWeight);
-		applyMutation(this.individualParameters::randomWeightMutationProbability,
-			NeuralIndividual::mutateWeight);
-		applyMutation(this.individualParameters::linkMutationProbability,
+		this.applyMutation(this.individualParameters::randomWeightMutationProbability,
+			NeuralIndividual::mutateRandomWeight);
+		this.applyMutation(this.individualParameters::linkMutationProbability,
 			NeuralIndividual::mutateLink);
-		applyMutation(this.individualParameters::biasLinkMutationProbability,
+		this.applyMutation(this.individualParameters::biasLinkMutationProbability,
 			NeuralIndividual::mutateBiasLink);
-		applyMutation(this.individualParameters::sensorMutationProbability,
+		this.applyMutation(this.individualParameters::sensorMutationProbability,
 			NeuralIndividual::mutateSensor);
-		applyMutation(this.individualParameters::neuronMutationProbability,
+		this.applyMutation(this.individualParameters::neuronMutationProbability,
 			NeuralIndividual::mutateNeuron);
-		applyMutation(this.individualParameters::enableMutationProbability,
+		this.applyMutation(this.individualParameters::enableMutationProbability,
 			NeuralIndividual::mutateEnable);
-		applyMutation(this.individualParameters::disableMutationProbability,
+		this.applyMutation(this.individualParameters::disableMutationProbability,
 			NeuralIndividual::mutateDisable);
-		applyMutation(this.individualParameters::destroyMutationProbability,
+		this.applyMutation(this.individualParameters::destroyMutationProbability,
 			NeuralIndividual::mutateDestroy);
 		return this;
 	}
@@ -392,7 +392,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			&& !isOutput.test(second))
 		{
 			// need to preserve DAG-ness of the neural network
-			if(isRecurrent(first, second))
+			if(this.isRecurrent(first, second))
 			{
 				var temp = first;
 				first = second;
