@@ -24,7 +24,6 @@ import neat.NetworkParameters;
 import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
-import neat.Species;
 import neat.StalenessIndicator;
 import network.neuron.Neuron;
 import utils.GsonUtils;
@@ -183,8 +182,7 @@ public class PersistenceTest
 			++thisGeneration;
 			// we want parallel and unordered for evaluation, but not for rank
 			var evals = eval
-				.evaluate(
-					pop.species().parallelStream().flatMap(Species::parallelStream).unordered())
+				.evaluate(pop.individuals().parallel().unordered())
 				.collect(Collectors.toList());
 			var top = pop.updateFitnesses(ranker.rank(evals));
 			//*
