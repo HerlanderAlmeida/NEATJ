@@ -33,6 +33,9 @@ public class ElitistSelection<T extends Individual> extends SelectionMethod<T>
 		this.withIndex(0);
 	}
 
+	/**
+	 * Inputs ranked from highest fitness to lowest fitness
+	 */
 	@Override
 	public <R extends Number & Comparable<R>> T selectIndividual(List<Evaluation<T, R>> ranked)
 	{

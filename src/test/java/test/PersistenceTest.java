@@ -183,7 +183,8 @@ public class PersistenceTest
 			++thisGeneration;
 			// we want parallel and unordered for evaluation, but not for rank
 			var evals = eval
-				.evaluate(pop.parallelStream().flatMap(Species::parallelStream).unordered())
+				.evaluate(
+					pop.species().parallelStream().flatMap(Species::parallelStream).unordered())
 				.collect(Collectors.toList());
 			var top = pop.updateFitnesses(ranker.rank(evals));
 			//*

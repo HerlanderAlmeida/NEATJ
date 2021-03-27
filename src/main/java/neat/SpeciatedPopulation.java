@@ -86,17 +86,12 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 
 	public Stream<T> individuals()
 	{
-		return this.stream().flatMap(Species::stream);
+		return this.species.stream().flatMap(Species::stream);
 	}
 
-	public Stream<Species<T, R>> stream()
+	public List<Species<T, R>> species()
 	{
-		return this.species.stream();
-	}
-
-	public Stream<Species<T, R>> parallelStream()
-	{
-		return this.species.parallelStream();
+		return this.species;
 	}
 
 	private void classifyIndividual(T t)
