@@ -80,16 +80,16 @@ public class Species<T extends SpeciesIndividual<R>, R extends Number & Comparab
 			if(fitness > this.maxFitness)
 			{
 				this.maxFitness = fitness;
-				staleness(0);
+				this.staleness(0);
 				return;
 			}
 		}
-		staleness(staleness() + 1);
+		this.staleness(this.staleness() + 1);
 	}
 
 	public void revive()
 	{
-		staleness(0);
+		this.staleness(0);
 	}
 
 	/**

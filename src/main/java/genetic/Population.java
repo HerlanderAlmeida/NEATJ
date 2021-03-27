@@ -18,8 +18,8 @@ import com.google.gson.JsonParseException;
  */
 public class Population<T extends Individual> extends ArrayList<T>
 {
-	/** Version 0.0.1 */
-	private static final long serialVersionUID = -3987426094906704015L;
+	/** Version 1.0.2 */
+	private static final long serialVersionUID = -855634598875462977L;
 
 	private Population(int size)
 	{
@@ -41,14 +41,14 @@ public class Population<T extends Individual> extends ArrayList<T>
 	@Override
 	public String toString()
 	{
-		if(size() > 7)
+		if(this.size() > 7)
 		{
 			return String.format(
 				"Population: [%s, %s, %s, ... %d more Individuals ..., %s, %s, %s], size: %d",
-				get(0), get(1), get(2), size() - 6, get(size() - 3), get(size() - 2),
-				get(size() - 1), size());
+				this.get(0), this.get(1), this.get(2), this.size() - 6, this.get(this.size() - 3), this.get(this.size() - 2),
+				this.get(this.size() - 1), this.size());
 		}
-		return String.format("Population: %s, size: %d", super.toString(), size());
+		return String.format("Population: %s, size: %d", super.toString(), this.size());
 	}
 
 	public static <T extends Individual> PopulationDeserializer<T> deserializer(Type type)

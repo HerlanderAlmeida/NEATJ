@@ -86,7 +86,8 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 
 	public Stream<T> individuals()
 	{
-		return this.species.stream().flatMap(Species::stream);
+		return this.species.stream().map(Species::stream).reduce(Stream::concat)
+			.orElse(Stream.empty());
 	}
 
 	public List<Species<T, R>> species()
