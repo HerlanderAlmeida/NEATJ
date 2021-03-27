@@ -32,9 +32,9 @@ public class GeneticAlgorithmTest
 		var eval = Evaluator
 			.<BinaryIndividual, Integer>of(b -> Integer.bitCount(b.genome().integer()));
 		// define crossover
-		CrossoverMethod<BinaryIndividual> crossover = BinaryIndividual::crossover;
+		var crossover = (CrossoverMethod<BinaryIndividual>) BinaryIndividual::crossover;
 		// define mutation(s)
-		Mutations<BinaryIndividual> mutations = new Mutations<>();
+		var mutations = new Mutations<BinaryIndividual>();
 		mutations.add(new Mutation<>(0.01, BinaryIndividual::mutateIndividual));
 		mutations.add(new Mutation<>(0.05, BinaryIndividual::mutatePoint));
 		// define selection
