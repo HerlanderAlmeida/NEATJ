@@ -77,9 +77,9 @@ public class Species<T extends SpeciesIndividual<R>, R extends Number & Comparab
 		if(currentFitness.isPresent())
 		{
 			var fitness = currentFitness.getAsDouble();
-			if(fitness > this.maxFitness)
+			if(fitness > this.maxFitness())
 			{
-				this.maxFitness = fitness;
+				this.maxFitness(fitness);
 				this.staleness(0);
 				return;
 			}
@@ -116,6 +116,16 @@ public class Species<T extends SpeciesIndividual<R>, R extends Number & Comparab
 	public void staleness(int staleness)
 	{
 		this.staleness = staleness;
+	}
+
+	public double maxFitness()
+	{
+		return this.maxFitness;
+	}
+
+	public void maxFitness(double maxFitness)
+	{
+		this.maxFitness = maxFitness;
 	}
 
 	public double averageFitness()

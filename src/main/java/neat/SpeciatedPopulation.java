@@ -10,7 +10,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import genetic.Population;
 import genetic.evaluate.Evaluation;
 import genetic.selection.Selector;
@@ -187,6 +186,15 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		if(stagnantPopulation)
 		{
+			/**
+			 * Useful if you would like to prioritize species by highest
+			 * lifetime score.
+			 */
+			if(this.speciationParameters.preservingLifetimeMaxFitness())
+			{
+				this.species.sort(
+					Comparator.<Species<T, R>, Double>comparing(Species::maxFitness).reversed());
+			}
 			var index = 0;
 			for(var species : this.species)
 			{
@@ -301,7 +309,8 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 
 		/**
-		 * Staleness is measured for each species, using this indicator as the measure of comparison
+		 * Staleness is measured for each species, using this indicator as the
+		 * measure of comparison
 		 */
 		public Builder<T, R> withStalenessIndicator(StalenessIndicator<T, R> stalenessIndicator)
 		{

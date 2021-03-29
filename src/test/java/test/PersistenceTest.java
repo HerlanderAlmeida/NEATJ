@@ -73,6 +73,7 @@ public class PersistenceTest
 			.withStaleGenerationsAllowed(15)
 			.withDeadbeatEvaluation(0)
 			.withPreservedSpecies(1)
+			.withPreservingLifetimeMaxFitness(false)
 			.build();
 		// define tracker for innovations
 		var tracker = new InnovationTracker();
@@ -150,7 +151,7 @@ public class PersistenceTest
 		var best = new Evaluation<>((NeuralIndividual)null, Double.NEGATIVE_INFINITY);
 		// starting from generation 100, will write generations 100 + 1 to 100 + 5
 		var firstGeneration = 100;
-		var numGenerations = 5;
+		var numGenerations = 105 - firstGeneration;
 		var thisGeneration = firstGeneration;
 
 		// set our serialization/deserialization

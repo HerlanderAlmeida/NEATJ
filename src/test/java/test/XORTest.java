@@ -67,6 +67,7 @@ public class XORTest
 			.withStaleGenerationsAllowed(15)
 			.withDeadbeatEvaluation(0)
 			.withPreservedSpecies(1)
+			.withPreservingLifetimeMaxFitness(false)
 			.build();
 		// define tracker for innovations
 		var tracker = new InnovationTracker();
@@ -155,7 +156,7 @@ public class XORTest
 			pop.updateSpecies(pop.repopulate());
 			tracker.reset();
 		}
-		while(!isVerified3Input(best.individual()) && pop.individuals().count() > 0 && generations < 1000);
+		while(!this.isVerified3Input(best.individual()) && pop.individuals().count() > 0 && generations < 1000);
 		System.out.println("3-input XOR test completed in "+generations+" generations.");
 		Assertions.assertFalse(generations == 1000, "Failed to converge in 1000 generations");
 		Assertions.assertTrue(pop.individuals().count() > 0, "All individuals perished");
@@ -227,6 +228,7 @@ public class XORTest
 			.withStaleGenerationsAllowed(15)
 			.withDeadbeatEvaluation(0)
 			.withPreservedSpecies(1)
+			.withPreservingLifetimeMaxFitness(false)
 			.build();
 		// define tracker for innovations
 		var tracker = new InnovationTracker();
@@ -311,7 +313,7 @@ public class XORTest
 			pop.updateSpecies(pop.repopulate());
 			tracker.reset();
 		}
-		while(!isVerified2Input(best.individual()) && pop.individuals().count() > 0 && generations < 100);
+		while(!this.isVerified2Input(best.individual()) && pop.individuals().count() > 0 && generations < 100);
 		System.out.println("2-input XOR test completed in "+generations+" generations.");
 		Assertions.assertFalse(generations == 100, "Failed to converge in 100 generations");
 		Assertions.assertTrue(pop.individuals().count() > 0, "All individuals perished");
