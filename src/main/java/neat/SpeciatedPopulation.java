@@ -40,6 +40,16 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		this.repopulate(size);
 	}
 
+	public SpeciationParameters speciationParameters()
+	{
+		return this.speciationParameters;
+	}
+
+	public void speciationParameters(SpeciationParameters speciationParameters)
+	{
+		this.speciationParameters = speciationParameters;
+	}
+
 	public Selector<T> selector()
 	{
 		return this.selector;
