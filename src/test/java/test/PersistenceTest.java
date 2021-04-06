@@ -18,12 +18,14 @@ import genetic.selection.Selector;
 import genetic.selection.method.ElitistSelection;
 import genetic.selection.method.RankSelection;
 import genetic.selection.method.RouletteSelection;
+import neat.FitnessMeasure;
 import neat.IndividualParameters;
 import neat.InnovationTracker;
 import neat.NetworkParameters;
 import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
+import neat.SpeciesIndividual;
 import neat.StalenessIndicator;
 import network.neuron.Neuron;
 import utils.GsonUtils;
@@ -133,19 +135,23 @@ public class PersistenceTest
 				.withUncrossedMutation(uncrossedMutation::apply)
 		);
 		// define species' measure of staleness
-		StalenessIndicator<NeuralIndividual, Double> stalenessIndicator = species -> species
+		var stalenessIndicator = (StalenessIndicator<NeuralIndividual, Double>) species -> species
 			.fitnesses().max();
+		// define species' measure of fitness
+		var fitnessMeasure = (FitnessMeasure<NeuralIndividual, Double>) species -> species
+			.population().stream().mapToDouble(SpeciesIndividual::fitness).average().orElse(0);
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
 		// initialize population
-		var pop = SpeciatedPopulation.<NeuralIndividual, Double>builder()
+		var popBuilder = SpeciatedPopulation.<NeuralIndividual, Double>builder()
 			.withSize(100)
 			.withGenerator(builder::build)
 			.withParameters(speciationParameters)
 			.withSelector(selector)
 			.withStalenessIndicator(stalenessIndicator)
-			.build();
+			.withFitnessMeasure(fitnessMeasure);
+		var pop = popBuilder.build();
 
 		// track the best individual
 		var best = new Evaluation<>((NeuralIndividual)null, Double.NEGATIVE_INFINITY);
@@ -174,9 +180,7 @@ public class PersistenceTest
 				var persisted = ResourceUtils.readObjectFromFile(
 					"/persistence/gen" + thisGeneration + "_record.json", PersistentRecord.class);
 				pop = persisted.pop();
-				pop.selector(selector);
-				pop.generator(builder::build);
-				pop.stalenessIndicator(stalenessIndicator);
+				pop.update(popBuilder);
 				tracker = persisted.tracker();
 				pop.individuals().forEach(ni -> ni.tracker(persisted.tracker()));
 			}

@@ -15,12 +15,14 @@ import genetic.selection.Selector;
 import genetic.selection.method.ElitistSelection;
 import genetic.selection.method.RankSelection;
 import genetic.selection.method.RouletteSelection;
+import neat.FitnessMeasure;
 import neat.IndividualParameters;
 import neat.InnovationTracker;
 import neat.NetworkParameters;
 import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
+import neat.SpeciesIndividual;
 import neat.StalenessIndicator;
 import network.neuron.Neuron;
 
@@ -127,8 +129,11 @@ public class XORTest
 				.withUncrossedMutation(uncrossedMutation::apply)
 		);
 		// define species' measure of staleness
-		StalenessIndicator<NeuralIndividual, Double> stalenessIndicator = species -> species
+		var stalenessIndicator = (StalenessIndicator<NeuralIndividual, Double>) species -> species
 			.fitnesses().max();
+		// define species' measure of fitness
+		var fitnessMeasure = (FitnessMeasure<NeuralIndividual, Double>) species -> species
+			.population().stream().mapToDouble(SpeciesIndividual::fitness).average().orElse(0);
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
@@ -139,6 +144,7 @@ public class XORTest
 			.withParameters(speciationParameters)
 			.withSelector(selector)
 			.withStalenessIndicator(stalenessIndicator)
+			.withFitnessMeasure(fitnessMeasure)
 			.build();
 
 		// track the best individual
@@ -284,8 +290,11 @@ public class XORTest
 				.withUncrossedMutation(uncrossedMutation::apply)
 		);
 		// define species' measure of staleness
-		StalenessIndicator<NeuralIndividual, Double> stalenessIndicator = species -> species
+		var stalenessIndicator = (StalenessIndicator<NeuralIndividual, Double>) species -> species
 			.fitnesses().max();
+		// define species' measure of fitness
+		var fitnessMeasure = (FitnessMeasure<NeuralIndividual, Double>) species -> species
+			.population().stream().mapToDouble(SpeciesIndividual::fitness).average().orElse(0);
 		// define ranking
 		var ranker = Ranker.rankingBy(
 			Comparator.comparing(Evaluation<NeuralIndividual, Double>::result).reversed());
@@ -296,6 +305,7 @@ public class XORTest
 			.withParameters(speciationParameters)
 			.withSelector(selector)
 			.withStalenessIndicator(stalenessIndicator)
+			.withFitnessMeasure(fitnessMeasure)
 			.build();
 
 		// track the best individual

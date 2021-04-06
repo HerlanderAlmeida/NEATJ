@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import genetic.Population;
 import genetic.evaluate.Evaluation;
 import genetic.selection.Selector;
@@ -26,17 +27,34 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	private Supplier<T> generator;
 	@Exclude
 	private StalenessIndicator<T, R> stalenessIndicator;
+	@Exclude
+	private FitnessMeasure<T, R> fitnessMeasure;
 	private int size;
 
 	private SpeciatedPopulation(int size, Supplier<T> generator, SpeciationParameters parameters,
-		Selector<T> selector, StalenessIndicator<T, R> stalenessIndicator)
+		Selector<T> selector, StalenessIndicator<T, R> stalenessIndicator,
+		FitnessMeasure<T, R> fitnessMeasure)
 	{
 		Objects.requireNonNull(generator);
 		this.generator = generator;
 		this.speciationParameters = parameters;
 		this.selector = selector;
 		this.stalenessIndicator = stalenessIndicator;
+		this.fitnessMeasure = fitnessMeasure;
 		this.repopulate(size);
+	}
+
+	public void update(Builder<T, R> builder)
+	{
+		this.speciationParameters = builder.speciationParameters;
+		this.selector = builder.selector;
+		this.generator = builder.generator;
+		this.stalenessIndicator = builder.stalenessIndicator;
+		this.fitnessMeasure = builder.fitnessMeasure;
+		for(var species : this.species)
+		{
+			species.fitnessMeasure(this.fitnessMeasure);
+		}
 	}
 
 	public SpeciationParameters speciationParameters()
@@ -44,29 +62,14 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		return this.speciationParameters;
 	}
 
-	public void speciationParameters(SpeciationParameters speciationParameters)
-	{
-		this.speciationParameters = speciationParameters;
-	}
-
 	public Selector<T> selector()
 	{
 		return this.selector;
 	}
 
-	public void selector(Selector<T> selector)
-	{
-		this.selector = selector;
-	}
-
 	public Supplier<T> generator()
 	{
 		return this.generator;
-	}
-
-	public void generator(Supplier<T> supplier)
-	{
-		this.generator = supplier;
 	}
 
 	public void repopulate(int size)
@@ -79,9 +82,9 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		return this.stalenessIndicator;
 	}
 
-	public void stalenessIndicator(StalenessIndicator<T, R> stalenessIndicator)
+	public FitnessMeasure<T, R> fitnessMeasure()
 	{
-		this.stalenessIndicator = stalenessIndicator;
+		return this.fitnessMeasure;
 	}
 
 	public void updateRepresentatives()
@@ -120,7 +123,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		}
 		if(!matched)
 		{
-			var newSpecies = new Species<T, R>();
+			var newSpecies = new Species<>(this.fitnessMeasure);
 			newSpecies.population(new Population<>(List.of(t)));
 			newSpecies.updateRepresentative();
 			this.species.add(newSpecies);
@@ -155,12 +158,12 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		this.species.forEach(species -> species.age(this.stalenessIndicator.apply(species)));
 		this.species.forEach(Species::adjustFitness);
 		this.removeStaleSpecies();
-		var min = this.species.stream().mapToDouble(Species::averageFitness).min();
+		var min = this.species.stream().mapToDouble(Species::fitness).min();
 		if(min.isPresent() && min.getAsDouble() <= 0)
 		{
 			for(var species : this.species)
 			{
-				species.averageFitness(species.averageFitness() - min.getAsDouble()
+				species.fitness(species.fitness() - min.getAsDouble()
 					+ this.speciationParameters.deadbeatEvaluation());
 			}
 		}
@@ -170,7 +173,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	public void removeStaleSpecies()
 	{
 		this.species
-			.sort(Comparator.<Species<T, R>, Double>comparing(Species::averageFitness).reversed());
+			.sort(Comparator.<Species<T, R>, Double>comparing(Species::fitness).reversed());
 		var stagnantPopulation = true;
 		for(var species : this.species)
 		{
@@ -221,11 +224,11 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 		{
 			this.repopulate(this.size);
 		}
-		var totalAverageFitness = this.species.stream().mapToDouble(Species::averageFitness).sum();
+		var totalAverageFitness = this.species.stream().mapToDouble(Species::fitness).sum();
 		var slotsRemaining = this.size;
 		for(var species : this.species)
 		{
-			species.capacity((int) (this.size * (species.averageFitness() / totalAverageFitness)));
+			species.capacity((int) (this.size * (species.fitness() / totalAverageFitness)));
 			slotsRemaining -= species.capacity();
 		}
 		// we'll be generous with the remaining slots, logarithmically
@@ -276,9 +279,10 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 	{
 		private int size;
 		private Supplier<T> generator;
-		private SpeciationParameters parameters;
+		private SpeciationParameters speciationParameters;
 		private Selector<T> selector;
 		private StalenessIndicator<T, R> stalenessIndicator;
+		private FitnessMeasure<T, R> fitnessMeasure;
 
 		private Builder()
 		{
@@ -298,7 +302,7 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 
 		public Builder<T, R> withParameters(SpeciationParameters parameters)
 		{
-			this.parameters = parameters;
+			this.speciationParameters = parameters;
 			return this;
 		}
 
@@ -318,10 +322,16 @@ public class SpeciatedPopulation<T extends SpeciesIndividual<R>, R extends Numbe
 			return this;
 		}
 
+		public Builder<T, R> withFitnessMeasure(FitnessMeasure<T, R> fitnessMeasure)
+		{
+			this.fitnessMeasure = fitnessMeasure;
+			return this;
+		}
+
 		public SpeciatedPopulation<T, R> build()
 		{
-			return new SpeciatedPopulation<>(this.size, this.generator, this.parameters,
-				this.selector, this.stalenessIndicator);
+			return new SpeciatedPopulation<>(this.size, this.generator, this.speciationParameters,
+				this.selector, this.stalenessIndicator, this.fitnessMeasure);
 		}
 	}
 }
