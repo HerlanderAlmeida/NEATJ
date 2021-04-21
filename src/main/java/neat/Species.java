@@ -26,7 +26,7 @@ public class Species<T extends SpeciesIndividual<R>, R extends Number & Comparab
 
 	public Species(FitnessMeasure<T, R> fitnessMeasure)
 	{
-		this.maxFitness = Double.MIN_VALUE;
+		this.revive();
 		this.fitnessMeasure(fitnessMeasure);
 	}
 
@@ -91,6 +91,7 @@ public class Species<T extends SpeciesIndividual<R>, R extends Number & Comparab
 
 	public void revive()
 	{
+		this.maxFitness(Double.MIN_VALUE);
 		this.staleness(0);
 	}
 
