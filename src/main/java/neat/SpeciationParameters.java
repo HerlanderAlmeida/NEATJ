@@ -1,10 +1,10 @@
 package neat;
 
 public record SpeciationParameters(double excessCoefficient, double disjointCoefficient,
-	double weightDifferenceCoefficient, int desiredSpecies, double differenceThreshold,
-	double differenceThresholdStep, double crossoverProbability, double eliminationRate,
-	int staleGenerationsAllowed, double deadbeatEvaluation, int preservedSpecies,
-	boolean preservingLifetimeMaxFitness)
+	double weightDifferenceCoefficient, double weightDifferencePower, int desiredSpecies,
+	double differenceThreshold, double differenceThresholdStep, double crossoverProbability,
+	double eliminationRate, int staleGenerationsAllowed, double deadbeatEvaluation,
+	int preservedSpecies, boolean preservingLifetimeMaxFitness)
 {
 
 	public static Builder builder()
@@ -15,17 +15,17 @@ public record SpeciationParameters(double excessCoefficient, double disjointCoef
 	public SpeciationParameters withDifferenceThreshold(double differenceThreshold)
 	{
 		return new SpeciationParameters(this.excessCoefficient, this.disjointCoefficient,
-			this.weightDifferenceCoefficient, this.desiredSpecies, differenceThreshold,
-			this.differenceThresholdStep, this.crossoverProbability, this.eliminationRate,
-			this.staleGenerationsAllowed, this.deadbeatEvaluation, this.preservedSpecies,
-			this.preservingLifetimeMaxFitness);
+			this.weightDifferenceCoefficient, this.weightDifferencePower, this.desiredSpecies,
+			differenceThreshold, this.differenceThresholdStep, this.crossoverProbability,
+			this.eliminationRate, this.staleGenerationsAllowed, this.deadbeatEvaluation,
+			this.preservedSpecies, this.preservingLifetimeMaxFitness);
 	}
-
 	public static class Builder
 	{
 		private double excessCoefficient;
 		private double disjointCoefficient;
 		private double weightDifferenceCoefficient;
+		private double weightDifferencePower;
 		private int desiredSpecies;
 		private double differenceThreshold;
 		private double differenceThresholdStep;
@@ -51,6 +51,12 @@ public record SpeciationParameters(double excessCoefficient, double disjointCoef
 		public Builder withWeightDifferenceCoefficient(double weightDifferenceCoefficient)
 		{
 			this.weightDifferenceCoefficient = weightDifferenceCoefficient;
+			return this;
+		}
+
+		public Builder withWeightDifferencePower(double weightDifferencePower)
+		{
+			this.weightDifferencePower = weightDifferencePower;
 			return this;
 		}
 
@@ -111,10 +117,10 @@ public record SpeciationParameters(double excessCoefficient, double disjointCoef
 		public SpeciationParameters build()
 		{
 			return new SpeciationParameters(this.excessCoefficient, this.disjointCoefficient,
-				this.weightDifferenceCoefficient, this.desiredSpecies, this.differenceThreshold,
-				this.differenceThresholdStep, this.crossoverProbability, this.eliminationRate,
-				this.staleGenerationsAllowed, this.deadbeatEvaluation, this.preservedSpecies,
-				this.preservingLifetimeMaxFitness);
+				this.weightDifferenceCoefficient, this.weightDifferencePower, this.desiredSpecies,
+				this.differenceThreshold, this.differenceThresholdStep, this.crossoverProbability,
+				this.eliminationRate, this.staleGenerationsAllowed, this.deadbeatEvaluation,
+				this.preservedSpecies, this.preservingLifetimeMaxFitness);
 		}
 	}
 }

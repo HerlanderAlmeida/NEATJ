@@ -149,7 +149,9 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				Math.max(genome1.genes().size(), genome2.genes().size()));
 			return parameters.excessCoefficient() * excess / largerGenomeSize
 				+ parameters.disjointCoefficient() * disjoint / largerGenomeSize
-				+ parameters.weightDifferenceCoefficient() * weightDiffs / Math.max(1, joint);
+				+ parameters.weightDifferenceCoefficient()
+					* Math.pow(weightDiffs, parameters.weightDifferencePower())
+					/ Math.max(1, joint);
 		}
 		else
 		{

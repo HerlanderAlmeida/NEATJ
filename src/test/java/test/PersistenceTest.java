@@ -67,6 +67,7 @@ public class PersistenceTest
 			.withDisjointCoefficient(2)
 			.withExcessCoefficient(1.5)
 			.withWeightDifferenceCoefficient(0.4)
+			.withWeightDifferencePower(1.0)
 			.withDesiredSpecies(15)
 			.withDifferenceThreshold(1.4)
 			.withDifferenceThresholdStep(0.05)
