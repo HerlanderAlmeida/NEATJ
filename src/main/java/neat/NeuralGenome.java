@@ -32,6 +32,19 @@ public class NeuralGenome implements Genome
 		this.neurons = inputs() + outputs() + biases();
 	}
 
+	public List<NeuralGene> getConnections(int from, int to)
+	{
+		var connections = new ArrayList<NeuralGene>();
+		for(var gene : this.genes)
+		{
+			if(gene.from() == from && gene.to() == to)
+			{
+				connections.add(gene);
+			}
+		}
+		return connections;
+	}
+
 	public boolean hasConnection(int from, int to)
 	{
 		for(var gene : this.genes)
