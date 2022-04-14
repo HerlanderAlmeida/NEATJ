@@ -386,7 +386,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		 * It's far more likely to hit if the network gets dense, which is
 		 * exactly when checking recurrency is slow.
 		 */
-		if(this.genome.hasConnection(second, first))
+		if(!this.genome.recurrent() && this.genome.hasConnection(second, first))
 		{
 			var temp = first;
 			first = second;
