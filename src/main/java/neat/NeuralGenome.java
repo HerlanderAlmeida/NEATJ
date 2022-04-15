@@ -158,6 +158,15 @@ public class NeuralGenome implements Genome
 	public void addConnection(int from, int to, double weight, boolean enabled,
 		InnovationTracker tracker)
 	{
+		for(var iter = genes.listIterator(); iter.hasNext();)
+		{
+			var gene = iter.next();
+			if(gene.from() == from && gene.to() == to)
+			{
+				iter.set(new NeuralGene(from, to, weight, enabled, tracker.getMarker(from, to)));
+				return;
+			}
+		}
 		this.genes.add(new NeuralGene(from, to, weight, enabled, tracker.getMarker(from, to)));
 	}
 

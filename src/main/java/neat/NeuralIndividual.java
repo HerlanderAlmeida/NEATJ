@@ -397,9 +397,9 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		{
 			var index = random.nextInt(genes.size());
 			var gene = genes.get(index);
-			genes.set(index,
-				gene.withWeight(random.nextDouble() * this.genome.networkParameters().range() * 2
-					- this.genome.networkParameters().range()));
+			var weight = random.nextDouble() * this.genome.networkParameters().range() * 2
+				- this.genome.networkParameters().range();
+			this.genome.addConnection(gene.from(), gene.to(), weight, gene.enabled(), this.tracker);
 			return this;
 		}
 		if(!this.genome.recurrent() && !isInput.test(first) && !isBias.test(first)
