@@ -382,23 +382,32 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			return this;
 		}
 		/*
-		 * Putting this check first can help mitigate the slow recurrent check.
-		 * It's far more likely to hit if the network gets dense, which is
-		 * exactly when checking recurrency is slow.
+		 * Putting these checks first can help mitigate the slow recurrent
+		 * check. They're far more likely to hit if the network gets dense,
+		 * which is exactly when checking recurrency is slow.
 		 */
-		if(!this.genome.recurrent() && this.genome.hasConnection(second, first))
+		var backGene = this.genome.getConnection(second, first);
+		/*
+		 * If reverse direction gene is already present, this is directly
+		 * recurrent
+		 */
+		if(backGene.isPresent() && backGene.get().enabled())
 		{
-			var temp = first;
-			first = second;
-			second = temp;
+			return this;
 		}
-		var genes = this.genome.getConnections(first, second);
-		if(genes.size() != 0)
+		/*
+		 * We don't want to swap first and second, because that disallows
+		 * certain network structures that could be potentially useful. However,
+		 * if the forward direction gene is already present, we wantt to perturb
+		 * it.
+		 */
+		var forwardGene = this.genome.getConnection(first, second);
+		if(forwardGene.isPresent())
 		{
-			var index = random.nextInt(genes.size());
-			var gene = genes.get(index);
-			var weight = random.nextDouble() * this.genome.networkParameters().range() * 2
-				- this.genome.networkParameters().range();
+			var gene = forwardGene.get();
+			var weight = gene.weight()
+				+ random.nextDouble() * this.genome.networkParameters().step() * 2
+				- this.genome.networkParameters().step();
 			this.genome.addConnection(gene.from(), gene.to(), weight, gene.enabled(), this.tracker);
 			return this;
 		}
@@ -547,13 +556,15 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 	public NeuralIndividual mutateWeight()
 	{
 		var genes = this.genome.genes();
+		var connectionGenes = this.genome.connectionGenes();
 		for(var index = 0; index < genes.size(); index++)
 		{
 			var gene = genes.get(index);
-			genes.set(index,
-				gene.withWeight(
-					gene.weight() + random.nextDouble() * this.genome.networkParameters().step() * 2
-						- this.genome.networkParameters().step()));
+			var updated = gene.withWeight(
+				gene.weight() + random.nextDouble() * this.genome.networkParameters().step() * 2
+					- this.genome.networkParameters().step());
+			genes.set(index, updated);
+			connectionGenes.put(new NeuralConnection(gene.from(), gene.to()), updated);
 		}
 		return this;// 0.225
 	}
@@ -570,9 +581,10 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		}
 		var index = random.nextInt(genes.size());
 		var gene = genes.get(index);
-		genes.set(index,
-			gene.withWeight(random.nextDouble() * this.genome.networkParameters().range() * 2
-				- this.genome.networkParameters().range()));
+		var newGene = gene
+			.withWeight(random.nextDouble() * this.genome.networkParameters().range() * 2
+				- this.genome.networkParameters().range());
+		this.genome.updateGene(index, newGene);
 		return this;// .025
 	}
 
@@ -593,7 +605,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			return this;
 		}
 		// disconnect the old link and invent a new node into existence
-		genes.set(index, gene.withEnabled(false));
+		this.genome.updateGene(index, gene.withEnabled(false));
 		var neurons = this.genome.neurons();
 		this.genome.neurons(neurons + 1);
 		this.genome.addConnection(gene.from(), neurons, 1, this.tracker);
@@ -629,7 +641,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			return this;
 		}
 		var flipping = pairs.get(random.nextInt(pairs.size()));
-		genes.set(flipping.index, flipping.gene.withEnabled(true));
+		this.genome.updateGene(flipping.index, flipping.gene.withEnabled(true));
 		return this;
 	}
 
@@ -663,7 +675,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			if(gene.enabled() && gene.from() == flipping.gene.from()
 				&& gene.marker() != flipping.gene.marker())
 			{
-				genes.set(flipping.index, flipping.gene.withEnabled(false));
+				this.genome.updateGene(flipping.index, flipping.gene.withEnabled(false));
 				return this;
 			}
 		}

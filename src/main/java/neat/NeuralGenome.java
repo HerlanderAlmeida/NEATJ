@@ -3,6 +3,8 @@ package neat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -15,12 +17,14 @@ public class NeuralGenome implements Genome
 {
 	private static final Random random = new Random();
 	private ArrayList<NeuralGene> genes;
+	private HashMap<NeuralConnection, NeuralGene> connectionGenes;
 	private NetworkParameters networkParameters;
 	private int neurons;
 
 	public NeuralGenome(NeuralGenome other)
 	{
 		this.genes = new ArrayList<>(other.genes);
+		this.connectionGenes = new HashMap<>(other.connectionGenes);
 		this.networkParameters = other.networkParameters;
 		this.neurons = other.neurons;
 	}
@@ -28,38 +32,29 @@ public class NeuralGenome implements Genome
 	public NeuralGenome(NetworkParameters networkParameters)
 	{
 		this.genes = new ArrayList<>();
+		this.connectionGenes = new HashMap<>();
 		this.networkParameters = networkParameters;
 		this.neurons = inputs() + outputs() + biases();
 	}
 
-	public List<NeuralGene> getConnections(int from, int to)
+	public Optional<NeuralGene> getConnection(int from, int to)
 	{
-		var connections = new ArrayList<NeuralGene>();
-		for(var gene : this.genes)
-		{
-			if(gene.from() == from && gene.to() == to)
-			{
-				connections.add(gene);
-			}
-		}
-		return connections;
+		return Optional.ofNullable(this.connectionGenes.get(new NeuralConnection(from, to)));
 	}
 
 	public boolean hasConnection(int from, int to)
 	{
-		for(var gene : this.genes)
-		{
-			if(gene.from() == from && gene.to() == to)
-			{
-				return true;
-			}
-		}
-		return false;
+		return this.connectionGenes.containsKey(new NeuralConnection(from, to));
 	}
 
 	public List<NeuralGene> genes()
 	{
 		return this.genes;
+	}
+
+	public Map<NeuralConnection, NeuralGene> connectionGenes()
+	{
+		return this.connectionGenes;
 	}
 
 	public int inputs()
@@ -144,6 +139,18 @@ public class NeuralGenome implements Genome
 		}
 	}
 
+	public void updateGene(int geneIndex, NeuralGene newGene)
+	{
+		var oldGene = this.genes.get(geneIndex);
+		if(oldGene.marker() != newGene.marker())
+		{
+			throw new IllegalArgumentException(
+				"Can't replace %s with %s!".formatted(oldGene, newGene));
+		}
+		this.genes.set(geneIndex, newGene);
+		this.connectionGenes.put(new NeuralConnection(newGene.from(), newGene.to()), newGene);
+	}
+
 	public void addConnection(int from, int to, InnovationTracker tracker)
 	{
 		addConnection(from, to, random.nextDouble() * this.networkParameters.range() * 2
@@ -158,16 +165,18 @@ public class NeuralGenome implements Genome
 	public void addConnection(int from, int to, double weight, boolean enabled,
 		InnovationTracker tracker)
 	{
+		var updated = new NeuralGene(from, to, weight, enabled, tracker.getMarker(from, to));
+		this.connectionGenes.put(new NeuralConnection(from, to), updated);
 		for(var iter = genes.listIterator(); iter.hasNext();)
 		{
 			var gene = iter.next();
 			if(gene.from() == from && gene.to() == to)
 			{
-				iter.set(new NeuralGene(from, to, weight, enabled, tracker.getMarker(from, to)));
+				iter.set(updated);
 				return;
 			}
 		}
-		this.genes.add(new NeuralGene(from, to, weight, enabled, tracker.getMarker(from, to)));
+		this.genes.add(updated);
 	}
 
 	@Override
