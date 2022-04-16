@@ -398,7 +398,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		/*
 		 * We don't want to swap first and second, because that disallows
 		 * certain network structures that could be potentially useful. However,
-		 * if the forward direction gene is already present, we wantt to perturb
+		 * if the forward direction gene is already present, we want to perturb
 		 * it.
 		 */
 		var forwardGene = this.genome.getConnection(first, second);
@@ -644,11 +644,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		var from = flipping.gene.from();
 		var to = flipping.gene.to();
 		var backGene = this.genome.getConnection(to, from);
-		if(backGene.isPresent() && backGene.get().enabled())
-		{
-			return this;
-		}
-		if(this.isRecurrent(from, to))
+		if(!this.genome.recurrent() && backGene.isPresent() && backGene.get().enabled())
 		{
 			return this;
 		}
