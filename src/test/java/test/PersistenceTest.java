@@ -22,7 +22,6 @@ import neat.FitnessMeasure;
 import neat.IndividualParameters;
 import neat.InnovationTracker;
 import neat.NetworkParameters;
-import neat.NeuralConnection;
 import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
@@ -164,12 +163,9 @@ public class PersistenceTest
 
 		// set our serialization/deserialization
 		var gsonBuilder = GsonUtils.gsonBuilder()
-			.enableComplexMapKeySerialization()
 			.registerTypeAdapter(Population.class, Population.deserializer(NeuralIndividual.class))
 			.registerTypeAdapter(PersistentRecord.class,
-				RecordDeserializer.forClass(PersistentRecord.class))
-			.registerTypeAdapter(NeuralConnection.class,
-				RecordDeserializer.forClass(NeuralConnection.class));
+				RecordDeserializer.forClass(PersistentRecord.class));
 		var gson = GsonUtils.INSTANCE.swapGson(gsonBuilder.create());
 
 		ResourceUtils.deleteFile("/persistence/gen101_record.json");

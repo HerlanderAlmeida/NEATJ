@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import genetic.evaluate.Evaluation;
 import neat.IndividualParameters;
 import neat.NetworkParameters;
+import neat.NeuralConnection;
 import neat.NeuralGene;
 import neat.SpeciationParameters;
 import network.connection.Connection;
@@ -41,12 +42,13 @@ public enum GsonUtils
 	public static GsonBuilder gsonBuilder()
 	{
 		var gsonBuilder = new GsonBuilder()
+			.enableComplexMapKeySerialization()
 			.addSerializationExclusionStrategy(GsonUtils.serializationExclusionStrategy())
 			.addDeserializationExclusionStrategy(GsonUtils.deserializationExclusionStrategy());
 		var classes = new Class<?>[] {
 				Evaluation.class, IndividualParameters.class, NetworkParameters.class,
 				NeuralGene.class, SpeciationParameters.class,
-				Connection.class
+				Connection.class, NeuralConnection.class
 		};
 		for(var clazz : classes)
 		{

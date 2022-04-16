@@ -641,6 +641,17 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			return this;
 		}
 		var flipping = pairs.get(random.nextInt(pairs.size()));
+		var from = flipping.gene.from();
+		var to = flipping.gene.to();
+		var backGene = this.genome.getConnection(to, from);
+		if(backGene.isPresent() && backGene.get().enabled())
+		{
+			return this;
+		}
+		if(this.isRecurrent(from, to))
+		{
+			return this;
+		}
 		this.genome.updateGene(flipping.index, flipping.gene.withEnabled(true));
 		return this;
 	}
