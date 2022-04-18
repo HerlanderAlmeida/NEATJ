@@ -12,11 +12,9 @@ open module neatj
 	exports genetic.selection.method;
 	exports neat;
 	exports network;
-	exports network.connection;
 	exports network.neuron;
 	// exports utils in case @Exclude exclusion strategy needs alteration
 	exports utils;
 
-	requires org.junit.jupiter.api;
 	requires transitive com.google.gson;
 }

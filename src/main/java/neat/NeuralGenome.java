@@ -1,6 +1,7 @@
 package neat;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +104,8 @@ public class NeuralGenome implements Genome
 		var network = new Network(inputs(), outputs(), biases(), recurrent());
 		var map = new HashMap<Integer, Integer>();
 		IntStream.range(0, inputs() + outputs() + biases()).forEach(x -> map.put(x, x));
-		this.genes.stream().filter(NeuralGene::enabled).forEach(gene ->
+		this.genes.stream().filter(NeuralGene::enabled)
+			.sorted(Comparator.comparing(NeuralGene::marker)).forEach(gene ->
 		{
 			if(!map.containsKey(gene.from()))
 			{

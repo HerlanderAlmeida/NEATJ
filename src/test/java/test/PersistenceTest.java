@@ -25,6 +25,7 @@ import neat.NetworkParameters;
 import neat.NeuralIndividual;
 import neat.SpeciatedPopulation;
 import neat.SpeciationParameters;
+import neat.Species;
 import neat.SpeciesIndividual;
 import neat.StalenessIndicator;
 import network.neuron.Neuron;
@@ -54,7 +55,7 @@ public class PersistenceTest
 			.withCrossoverMutationProbability(0.1)
 			.withWeightMutationProbability(0.225)
 			.withRandomWeightMutationProbability(0.025)
-			.withLinkMutationProbability(2)
+			.withLinkMutationProbability(2.0)
 			.withBiasLinkMutationProbability(0.4)
 			.withSensorMutationProbability(0.1)
 			.withNeuronMutationProbability(0.5)
@@ -111,7 +112,7 @@ public class PersistenceTest
 					sse += target[j];
 				}
 			}
-			return 8 - (int)(sse * 1e4)/1e4;
+			return 8 - (int) (sse * 1e4) / 1e4;
 		});
 		// define crossover
 		var crossover = (CrossoverMethod<NeuralIndividual>) NeuralIndividual::crossover;
@@ -184,6 +185,7 @@ public class PersistenceTest
 				pop.update(popBuilder);
 				tracker = persisted.tracker();
 				pop.individuals().forEach(ni -> ni.tracker(persisted.tracker()));
+				pop.species().forEach(Species::revive);
 			}
 			++thisGeneration;
 			// we want parallel and unordered for evaluation, but not for rank

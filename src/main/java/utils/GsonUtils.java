@@ -14,7 +14,6 @@ import neat.NetworkParameters;
 import neat.NeuralConnection;
 import neat.NeuralGene;
 import neat.SpeciationParameters;
-import network.connection.Connection;
 
 public enum GsonUtils
 {
@@ -47,8 +46,7 @@ public enum GsonUtils
 			.addDeserializationExclusionStrategy(GsonUtils.deserializationExclusionStrategy());
 		var classes = new Class<?>[] {
 				Evaluation.class, IndividualParameters.class, NetworkParameters.class,
-				NeuralGene.class, SpeciationParameters.class,
-				Connection.class, NeuralConnection.class
+				NeuralGene.class, SpeciationParameters.class, NeuralConnection.class
 		};
 		for(var clazz : classes)
 		{

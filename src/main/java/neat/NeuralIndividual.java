@@ -1,16 +1,13 @@
 package neat;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import utils.Exclude;
 
@@ -429,35 +426,49 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 	// help, this function is extremely expensive!!!
 	public boolean isRecurrent(int from, int to)
 	{
-		var sources = this.genome.genes().stream().collect(Collectors.groupingBy(NeuralGene::to));
-		var previous = new ArrayDeque<Integer>();
-		Optional.ofNullable(sources.get(from)).orElseGet(ArrayList::new).stream()
-			.map(NeuralGene::from).forEach(previous::add);
-		var visited = new HashSet<Integer>();
-		while(!previous.isEmpty())
+		var earliestFrom = Long.MAX_VALUE;
+		var earliestTo = Long.MAX_VALUE;
+		for(var gene : this.genome().genes())
 		{
-			var current = previous.poll();
-			if(current == to)
+			if(gene.from() == from || gene.to() == from)
 			{
-				return true;
+				earliestFrom = Math.min(earliestFrom, gene.marker());
 			}
-			if(!visited.add(current))
+			if(gene.to() == to || gene.to() == to)
 			{
-				continue;
-			}
-			var currentSources = sources.get(current);
-			if(currentSources != null)
-			{
-				for(var source : currentSources)
-				{
-					if(!visited.contains(source.from()))
-					{
-						previous.offer(source.from());
-					}
-				}
+				earliestTo = Math.min(earliestTo, gene.marker());
 			}
 		}
-		return false;
+		return from > to || earliestTo > earliestFrom;
+//		var sources = this.genome.genes().stream().collect(Collectors.groupingBy(NeuralGene::to));
+//		var previous = new ArrayDeque<Integer>();
+//		Optional.ofNullable(sources.get(from)).orElseGet(ArrayList::new).stream()
+//			.map(NeuralGene::from).forEach(previous::add);
+//		var visited = new HashSet<Integer>();
+//		while(!previous.isEmpty())
+//		{
+//			var current = previous.poll();
+//			if(current == to)
+//			{
+//				return Math.random() < 0.9;
+//			}
+//			if(!visited.add(current))
+//			{
+//				continue;
+//			}
+//			var currentSources = sources.get(current);
+//			if(currentSources != null)
+//			{
+//				for(var source : currentSources)
+//				{
+//					if(!visited.contains(source.from()))
+//					{
+//						previous.offer(source.from());
+//					}
+//				}
+//			}
+//		}
+//		return false;
 	}
 
 	/**
