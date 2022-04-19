@@ -169,11 +169,14 @@ public class PersistenceTest
 				RecordDeserializer.forClass(PersistentRecord.class));
 		var gson = GsonUtils.INSTANCE.swapGson(gsonBuilder.create());
 
-		ResourceUtils.deleteFile("/persistence/gen101_record.json");
-		ResourceUtils.deleteFile("/persistence/gen102_record.json");
-		ResourceUtils.deleteFile("/persistence/gen103_record.json");
-		ResourceUtils.deleteFile("/persistence/gen104_record.json");
-		ResourceUtils.deleteFile("/persistence/gen105_record.json");
+		for(var record = 1; record <= numGenerations + firstGeneration; record++)
+		{
+			if(record == firstGeneration + numGenerations - 5)
+			{
+				continue;
+			}
+			ResourceUtils.deleteFile("/persistence/gen%s_record.json".formatted(record));
+		}
 
 		do
 		{
@@ -224,11 +227,16 @@ public class PersistenceTest
 		}
 
 		// reset state
-		ResourceUtils.deleteFile("/persistence/gen101_record.json");
-		ResourceUtils.deleteFile("/persistence/gen102_record.json");
-		ResourceUtils.deleteFile("/persistence/gen103_record.json");
-		ResourceUtils.deleteFile("/persistence/gen104_record.json");
-		ResourceUtils.deleteFile("/persistence/gen105_record.json");
+		for(var record = 1 + firstGeneration; record <= numGenerations + firstGeneration; record++)
+		{
+			var filename = "/persistence/gen%s_record.json".formatted(record);
+			Assertions.assertTrue(ResourceUtils.exists(filename));
+			if(record == firstGeneration + numGenerations - 5)
+			{
+				continue;
+			}
+			ResourceUtils.deleteFile(filename);
+		}
 		GsonUtils.INSTANCE.setGson(gson);
 	}
 

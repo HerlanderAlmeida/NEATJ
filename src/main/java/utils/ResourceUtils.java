@@ -39,6 +39,11 @@ public class ResourceUtils
 		}
 	}
 
+	public static boolean exists(String filename) throws IOException
+	{
+		return Paths.get(absolute(filename)).toFile().exists();
+	}
+
 	public static void deleteFile(String filename) throws IOException
 	{
 		Paths.get(absolute(filename)).toFile().delete();

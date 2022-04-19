@@ -439,7 +439,7 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 				earliestTo = Math.min(earliestTo, gene.marker());
 			}
 		}
-		return from > to || earliestTo > earliestFrom;
+		return from > to || earliestTo < earliestFrom;
 //		var sources = this.genome.genes().stream().collect(Collectors.groupingBy(NeuralGene::to));
 //		var previous = new ArrayDeque<Integer>();
 //		Optional.ofNullable(sources.get(from)).orElseGet(ArrayList::new).stream()
