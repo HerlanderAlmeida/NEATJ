@@ -57,6 +57,7 @@ public class PersistenceTest
 			.withRandomWeightMutationProbability(0.025)
 			.withLinkMutationProbability(2.0)
 			.withBiasLinkMutationProbability(0.4)
+			.withOutputLinkMutationProbability(0.4)
 			.withSensorMutationProbability(0.1)
 			.withNeuronMutationProbability(0.5)
 			.withEnableMutationProbability(0.4)

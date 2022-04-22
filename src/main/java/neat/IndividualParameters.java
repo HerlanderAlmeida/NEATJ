@@ -5,9 +5,10 @@ import java.util.Random;
 public record IndividualParameters(boolean canMutate, double cloningMutationProbability,
 	double crossoverMutationProbability, double weightMutationProbability,
 	double randomWeightMutationProbability, double linkMutationProbability,
-	double biasLinkMutationProbability, double sensorMutationProbability,
-	double neuronMutationProbability, double enableMutationProbability,
-	double disableMutationProbability, double destroyMutationProbability)
+	double biasLinkMutationProbability, double outputLinkMutationProbability,
+	double sensorMutationProbability, double neuronMutationProbability, 
+	double enableMutationProbability, double disableMutationProbability,
+	double destroyMutationProbability)
 {
 
 	public IndividualParameters mutateProbabilities(Random random)
@@ -31,6 +32,8 @@ public record IndividualParameters(boolean canMutate, double cloningMutationProb
 			* (random.nextBoolean() ? more : less);
 		var biasLinkMutationProbability = this.biasLinkMutationProbability
 			* (random.nextBoolean() ? more : less);
+		var outputLinkMutationProbability = this.outputLinkMutationProbability
+			* (random.nextBoolean() ? more : less);
 		var sensorMutationProbability = this.sensorMutationProbability
 			* (random.nextBoolean() ? more : less);
 		var neuronMutationProbability = this.neuronMutationProbability
@@ -43,9 +46,11 @@ public record IndividualParameters(boolean canMutate, double cloningMutationProb
 			* (random.nextBoolean() ? more : less);
 		return new IndividualParameters(true, cloningMutationProbability,
 			crossoverMutationProbability, weightMutationProbability,
-			randomWeightMutationProbability, linkMutationProbability, biasLinkMutationProbability,
-			sensorMutationProbability, neuronMutationProbability, enableMutationProbability,
-			disableMutationProbability, destroyMutationProbability);
+			randomWeightMutationProbability, linkMutationProbability,
+			biasLinkMutationProbability, outputLinkMutationProbability,
+			sensorMutationProbability, neuronMutationProbability,
+			enableMutationProbability, disableMutationProbability,
+			destroyMutationProbability);
 	}
 
 	public static Builder builder()
@@ -58,9 +63,10 @@ public record IndividualParameters(boolean canMutate, double cloningMutationProb
 		return new IndividualParameters(this.canMutate, this.cloningMutationProbability,
 			this.crossoverMutationProbability, this.weightMutationProbability,
 			this.randomWeightMutationProbability, this.linkMutationProbability,
-			this.biasLinkMutationProbability, this.sensorMutationProbability,
-			this.neuronMutationProbability, this.enableMutationProbability,
-			this.disableMutationProbability, this.destroyMutationProbability);
+			this.biasLinkMutationProbability, this.outputLinkMutationProbability,
+			this.sensorMutationProbability, this.neuronMutationProbability,
+			this.enableMutationProbability, this.disableMutationProbability,
+			this.destroyMutationProbability);
 	}
 
 	public static class Builder
@@ -72,6 +78,7 @@ public record IndividualParameters(boolean canMutate, double cloningMutationProb
 		private double randomWeightMutationProbability = 0.025;
 		private double linkMutationProbability = 2;
 		private double biasLinkMutationProbability = 0.4;
+		private double outputLinkMutationProbability = 0.4;
 		private double sensorMutationProbability = 0.4;
 		private double neuronMutationProbability = 0.5;
 		private double enableMutationProbability = 0.4;
@@ -124,6 +131,12 @@ public record IndividualParameters(boolean canMutate, double cloningMutationProb
 			return this;
 		}
 
+		public Builder withOutputLinkMutationProbability(double outputLinkMutationProbability)
+		{
+			this.outputLinkMutationProbability = outputLinkMutationProbability;
+			return this;
+		}
+
 		public Builder withSensorMutationProbability(double sensorMutationProbability)
 		{
 			this.sensorMutationProbability = sensorMutationProbability;
@@ -159,9 +172,10 @@ public record IndividualParameters(boolean canMutate, double cloningMutationProb
 			return new IndividualParameters(this.canMutate, this.cloningMutationProbability,
 				this.crossoverMutationProbability, this.weightMutationProbability,
 				this.randomWeightMutationProbability, this.linkMutationProbability,
-				this.biasLinkMutationProbability, this.sensorMutationProbability,
-				this.neuronMutationProbability, this.enableMutationProbability,
-				this.disableMutationProbability, this.destroyMutationProbability);
+				this.biasLinkMutationProbability, this.outputLinkMutationProbability,
+				this.sensorMutationProbability, this.neuronMutationProbability,
+				this.enableMutationProbability, this.disableMutationProbability,
+				this.destroyMutationProbability);
 		}
 	}
 }

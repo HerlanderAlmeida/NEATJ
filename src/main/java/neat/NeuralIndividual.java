@@ -304,6 +304,8 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 			NeuralIndividual::mutateLink);
 		this.applyMutation(this.individualParameters::biasLinkMutationProbability,
 			NeuralIndividual::mutateBiasLink);
+		this.applyMutation(this.individualParameters::outputLinkMutationProbability,
+			NeuralIndividual::mutateOutputLink);
 		this.applyMutation(this.individualParameters::sensorMutationProbability,
 			NeuralIndividual::mutateSensor);
 		this.applyMutation(this.individualParameters::neuronMutationProbability,
@@ -523,6 +525,50 @@ public class NeuralIndividual extends SpeciesIndividual<Double>
 		}
 		this.genome.addConnection(first, second, this.tracker);
 		return this;// .4
+	}
+
+	/**
+	 * Adds a link ending in an output node
+	 */
+	public NeuralIndividual mutateOutputLink()
+	{
+		var neurons = this.genome.neurons();
+		var inputs = this.genome.inputs();
+		var outputs = this.genome.outputs();
+		if(outputs == 0)
+		{
+			throw new IllegalStateException("NeuralIndividual must have at least 1 output!");
+		}
+		// always bias
+		var first = random.nextInt(neurons - outputs);
+		// always output
+		var second = random.nextInt(outputs);
+		var inputEdge = inputs;
+		var outputEdge = inputs + outputs;
+		// network=[inputs|outputs|biases|hidden]
+		// translate non-inputs to be biases or hidden
+		if(first >= inputs)
+		{
+			first += outputs;
+		}
+		second += inputs;
+		Predicate<Integer> isOutput = x -> x >= inputEdge && x < outputEdge;
+		if(isOutput.test(first))
+		{
+			throw new IllegalStateException(
+				"Unexpectedly, output node selected as link source: " + first);
+		}
+		if(!isOutput.test(second))
+		{
+			throw new IllegalStateException(
+				"Unexpectly, non-output node selected as link destination: " + second);
+		}
+		if(this.genome.hasConnection(first, second))
+		{
+			return this;
+		}
+		this.genome.addConnection(first, second, this.tracker);
+		return this;
 	}
 
 	public NeuralIndividual mutateSensor()
